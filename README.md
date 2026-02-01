@@ -1,6 +1,7 @@
 # custom-debian-initramfs-init
-custom /init script for initramfs in debian, adding several useful parameters to the cmdline of the kernel
-Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything
+custom /init script for initramfs in debian, adding several useful parameters to the cmdline of the kernel  
+the parameters added here make the most sense for embedded devices  
+Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything  
 
 ## kernel parameters
 * clear - clears the terminal during initialization. does this as early as possible. the original script has initramfs.clear, but apparently it doesn't work
