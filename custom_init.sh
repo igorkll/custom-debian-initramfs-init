@@ -538,24 +538,24 @@ fi
 
 # Move virtual filesystems over to the real filesystem
 mount -n -o move /sys ${rootmnt}/sys
-mount -n -o move /proc ${rootmnt}/proc
 mount -n -o move /tmp ${rootmnt}/tmp
+get_uptime
+mount -n -o move /proc ${rootmnt}/proc
 
 # custom init paramenters
-if [ -n "$MINLOGOTIME" ]; then
-	get_uptime
+if [ -n "${MINLOGOTIME}" ]; then
 	LOGO_UPTIME="${UPTIME}"
 
-	if [ -n "$PLYMOUTH_INIT_TIME" ]; then
+	if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
         LOGO_UPTIME=$(( LOGO_UPTIME - PLYMOUTH_INIT_TIME ))
     fi
 
-	if [ "$LOGO_UPTIME" -lt "$MINLOGOTIME" ]; then
+	if [ "${LOGO_UPTIME}" -lt "${MINLOGOTIME}" ]; then
 		sleep $((MINLOGOTIME - LOGO_UPTIME))
 	fi
 fi
 
-if [ "${LOGOAUTOHIDE}" = "true" ]
+if [ "${LOGOAUTOHIDE}" = "true" ]; then
 	/usr/bin/plymouth quit
 fi
 
