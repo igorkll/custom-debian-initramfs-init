@@ -23,6 +23,9 @@ for x in $(cat /proc/cmdline); do
 	earlysplash)
 		EARLYSPLASH=true
 		;;
+	logoautohide)
+		LOGOAUTOHIDE=true
+		;;
 	noctrlaltdel)
 		echo 0 > /proc/sys/kernel/ctrl-alt-del
 		;;
@@ -550,6 +553,10 @@ if [ -n "$MINLOGOTIME" ]; then
 	if [ "$LOGO_UPTIME" -lt "$MINLOGOTIME" ]; then
 		sleep $((MINLOGOTIME - LOGO_UPTIME))
 	fi
+fi
+
+if [ "${LOGOAUTOHIDE}" = "true" ]
+	/usr/bin/plymouth quit
 fi
 
 # Chain to real filesystem

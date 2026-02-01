@@ -17,6 +17,7 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * makeroothometmp - makes a tmpfs "/root" directory by copying the real contents into it. may be necessary for readonly filesystems
 * logodelay=10 - It was created to create a delay in system loading and the logo was displayed longer.
 * minlogotime=10 - a more preferable option. sets exactly the minimum display time for the logo and does not make a stupid delay. it starts before of the init system, but after mounting, when the environment is almost ready.
+* logoautohide - automatically hides the logo just before the initialization system starts. it should be used if your userspace itself does not hide the logo
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
 * root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add root_processing
 
@@ -25,3 +26,6 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * cp
 * growpart
 * resize2fs
+
+## installation
+* 
