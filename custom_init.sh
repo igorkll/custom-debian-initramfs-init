@@ -67,14 +67,16 @@ plymouth_init() {
 }
 
 get_uptime() {
-	echo $(awk '{printf "%d", $1}' /proc/uptime)
+	UPTIME=$(cat /proc/uptime)
+	UPTIME=${UPTIME%%.*}
 }
 
 plymouth_init_and_check() {
 	if [ -e /dev/fb0 ]; then
 		plymouth_init
 		PLYMOUTH_FAILED=false
-		PLYMOUTH_INIT_TIME=$(get_uptime)
+		get_uptime
+		PLYMOUTH_INIT_TIME="${UPTIME}"
 	else
 		# even so, we're still trying to initialize, we'll just try again later (for example, after loading the kernel modules)
 		plymouth_init
@@ -281,7 +283,7 @@ for x in $(cat /proc/cmdline); do
 		;;
 
 	minlogotime=*)
-		MINLOGOTIME="${x#MINLOGOTIME=}"
+		MINLOGOTIME="${x#minlogotime=}"
 		case ${MINLOGOTIME} in
 		*[![:digit:].]*)
 			MINLOGOTIME=
@@ -501,18 +503,18 @@ unset fsckfix
 unset starttime
 
 make_temp() {
-	local dirname=$1
-	local olddir="/${dirname}.old"
-	local target="${rootmnt}/${dirname}/"
+	local_dirname=$1
+	local_olddir="/${local_dirname}.old"
+	local_target="${rootmnt}/${local_dirname}/"
 
-	if [ -d "${target}" ]; then
-		mkdir -p "$olddir"
-		mount -t tmpfs tmpfs "$olddir"
-		cp -a "${target}/." $olddir
-		mount -t tmpfs -o mode=1777,nodev,nosuid tmpfs "$target"
-		cp -a "${olddir}/." $target
-		umount "$olddir"
-		rm -rf "$olddir"
+	if [ -d "${local_target}" ]; then
+		mkdir -p "$local_olddir"
+		mount -t tmpfs tmpfs "$local_olddir"
+		cp -a "${local_target}/." $local_olddir
+		mount -t tmpfs -o mode=1777,nodev,nosuid tmpfs "$local_target"
+		cp -a "${local_olddir}/." $local_target
+		umount "$local_olddir"
+		rm -rf "$local_olddir"
 	fi
 }
 
@@ -538,7 +540,8 @@ mount -n -o move /tmp ${rootmnt}/tmp
 
 # custom init paramenters
 if [ -n "$MINLOGOTIME" ]; then
-	LOGO_UPTIME=$(get_uptime)
+	get_uptime
+	LOGO_UPTIME="${UPTIME}"
 
 	if [ -n "$PLYMOUTH_INIT_TIME" ]; then
         LOGO_UPTIME=$(( LOGO_UPTIME - PLYMOUTH_INIT_TIME ))

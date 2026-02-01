@@ -1,5 +1,6 @@
 # custom-debian-initramfs-init
 custom /init script for initramfs in debian, adding several useful parameters to the cmdline of the kernel
+Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything
 
 ## kernel parameters
 * clear - clears the terminal during initialization. does this as early as possible. the original script has initramfs.clear, but apparently it doesn't work
@@ -11,9 +12,9 @@ custom /init script for initramfs in debian, adding several useful parameters to
 * loopflags= - flags that the loop will be mounted with (not necessary for the loop= to work)
 * loopfstype= - the type of file system inside the loop file. can be determined automatically, not necessary for the loop= to work
 * loopreadonly - it says that the loop needs to be mounted as readonly even if the real root is not readonly
-* makevartmp - makes a tmpfs "/var" directory by copying the real contents into it. may be necessary for readonly file systems
-* makehometmp - makes a tmpfs "/home" directory by copying the real contents into it. may be necessary for readonly file systems
-* makeroothometmp - makes a tmpfs "/root" directory by copying the real contents into it. may be necessary for readonly file systems
+* makevartmp - makes a tmpfs "/var" directory by copying the real contents into it. may be necessary for readonly filesystems
+* makehometmp - makes a tmpfs "/home" directory by copying the real contents into it. may be necessary for readonly filesystems
+* makeroothometmp - makes a tmpfs "/root" directory by copying the real contents into it. may be necessary for readonly filesystems
 * logodelay=10 - It was created to create a delay in system loading and the logo was displayed longer.
 * minlogotime=10 - a more preferable option. sets exactly the minimum display time for the logo and does not make a stupid delay. it starts before of the init system, but after mounting, when the environment is almost ready.
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
