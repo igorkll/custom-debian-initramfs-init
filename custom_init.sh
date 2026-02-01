@@ -61,20 +61,31 @@ mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /run
 
 plymouth_init() {
-	mkdir -m 0755 /run/plymouth
+	mkdir -p -m 0755 /run/plymouth
 	/usr/sbin/plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
 	/usr/bin/plymouth --show-splash
+}
+
+get_uptime() {
+	echo $(awk '{printf "%d", $1}' /proc/uptime)
+}
+
+plymouth_init_and_check() {
+	if [ -e /dev/fb0 ]; then
+		plymouth_init
+		PLYMOUTH_FAILED=false
+		PLYMOUTH_INIT_TIME=$(get_uptime)
+	else
+		# even so, we're still trying to initialize, we'll just try again later (for example, after loading the kernel modules)
+		plymouth_init
+		PLYMOUTH_FAILED=true
+	fi
 }
 
 # initialization of plymouth has been moved to an earlier stage
 if [ "${EARLYSPLASH}" = "true" ]
 then
-	if [ -e /dev/fb0 ]; then
-		plymouth_init
-		PLYMOUTH_FAILED=false
-	else
-		PLYMOUTH_FAILED=true
-	fi
+	plymouth_init_and_check
 fi
 
 # Export the dpkg architecture
@@ -269,6 +280,15 @@ for x in $(cat /proc/cmdline); do
 		esac
 		;;
 
+	minlogotime=*)
+		MINLOGOTIME="${x#MINLOGOTIME=}"
+		case ${MINLOGOTIME} in
+		*[![:digit:].]*)
+			MINLOGOTIME=
+			;;
+		esac
+		;;
+
 	root_processing)
 		ROOT_PROCESSING=y
 		;;
@@ -309,12 +329,7 @@ load_modules
 
 if [ "${PLYMOUTH_FAILED}" = "true" ]
 then
-	if [ -e /dev/fb0 ]; then
-		plymouth_init
-		PLYMOUTH_FAILED=false
-	else
-		PLYMOUTH_FAILED=true
-	fi
+	plymouth_init_and_check
 fi
 
 starttime="$(_uptime)"
@@ -344,23 +359,23 @@ mount_premount
 
 if [ "${PLYMOUTH_FAILED}" = "true" ]
 then
-	if [ -e /dev/fb0 ]; then
-		plymouth_init
-		PLYMOUTH_FAILED=false
-	else
-		PLYMOUTH_FAILED=true
-	fi
+	plymouth_init_and_check
 fi
 
 # custom init paramenters
-if [ "$LOGODELAY" ]; then
+if [ -n "$LOGODELAY" ]; then
 	sleep "$LOGODELAY"
 fi
 
 if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	local_device_setup "${ROOT}" "root file system"
-	PART_NUM="${DEV##*[!0-9]}"
-	DISK="${DEV%$PART_NUM}"
+	if echo "$DEV" | grep -q '^/dev/nvme'; then
+		PART_NUM="${DEV##*p}"
+		DISK="${DEV%p$PART_NUM}"
+	else
+		PART_NUM="${DEV##*[!0-9]}"
+		DISK="${DEV%$PART_NUM}"
+	fi
 	
 	if [ -n "$ROOT_EXPAND" ]; then
 		log_begin_msg "Expanding root partition"
@@ -520,6 +535,19 @@ fi
 mount -n -o move /sys ${rootmnt}/sys
 mount -n -o move /proc ${rootmnt}/proc
 mount -n -o move /tmp ${rootmnt}/tmp
+
+# custom init paramenters
+if [ -n "$MINLOGOTIME" ]; then
+	LOGO_UPTIME=$(get_uptime)
+
+	if [ -n "$PLYMOUTH_INIT_TIME" ]; then
+        LOGO_UPTIME=$(( LOGO_UPTIME - PLYMOUTH_INIT_TIME ))
+    fi
+
+	if [ "$LOGO_UPTIME" -lt "$MINLOGOTIME" ]; then
+		sleep $((MINLOGOTIME - LOGO_UPTIME))
+	fi
+fi
 
 # Chain to real filesystem
 # shellcheck disable=SC2086,SC2094
