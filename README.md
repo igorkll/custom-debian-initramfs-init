@@ -30,5 +30,10 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * resize2fs
 
 ## installation
+* command: sudo apt install cloud-guest-utils
+* command: sudo apt install e2fsprogs
 * if you use "earlysplash" (alternative initialization of plymouth), then the "/usr/share/initramfs-tools/scripts/init-premount/plymouth" and "/usr/share/initramfs-tools/scripts/init-bottom/plymouth" files must be DELETED so that they do not conflict with the new initialization of plymouth. this will result in the logo not being displayed at all without earlysplash
 * if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a logoautohide kernel argument
+* copy custom_init.sh to "/usr/share/initramfs-tools/init" and make executable
+* copy custom_init_hook.sh to "/etc/initramfs-tools/hooks/custom_init_hook.sh" and make executable
+* command: sudo update-initramfs -u
