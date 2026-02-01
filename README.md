@@ -1,6 +1,7 @@
 # custom-debian-initramfs-init
 custom /init script for initramfs in debian, adding several useful parameters to the cmdline of the kernel  
 the parameters added here make the most sense for embedded devices  
+it also allows you to mount rootfs from *.img (loop), including from real rootfs  
 Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything  
 
 ## kernel parameters
