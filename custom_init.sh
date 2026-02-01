@@ -246,8 +246,8 @@ for x in $(cat /proc/cmdline); do
 	loopfstype=*)
 		LOOPFSTYPE="${x#loopfstype=}"
 		;;
-	loopreadonly=y)
-		LOOPREADONLY=y
+	loopreadonly)
+		LOOPREADONLY=true
 		;;
 	
 	makevartmp)
@@ -269,10 +269,10 @@ for x in $(cat /proc/cmdline); do
 		esac
 		;;
 
-	root_processing=y)
+	root_processing)
 		ROOT_PROCESSING=y
 		;;
-	root_expand=y)
+	root_expand)
 		ROOT_EXPAND=y
 		;;
 	esac
@@ -386,14 +386,10 @@ if [ -n "$LOOP" ]; then
 			mount -n -o move "${rootmnt}" /realroot
 		fi
 
-		if [ "$readonly" = y ]; then
+		if [ "$LOOPREADONLY" = "true" ]; then
 			roflag=-r
 		else
-			if [ -n "$LOOPREADONLY" ]; then
-				roflag=-r
-			else
-				roflag=-w
-			fi
+			roflag=-w
 		fi
 
 		FSTYPE="$LOOPFSTYPE"

@@ -9,4 +9,11 @@ custom /init script for initramfs in debian, adding several useful parameters to
 * nosysrq - disables support for sysrq in the kernel as early as possible. As practice shows, sysrq=0 does not always work
 * loop=/path - allows you to mount loop files (rootfs in .img file) as root (it seems like this already exists in ubuntu but not in debian) here is the path relative to the initramfs root, however, the real root is accessible via the path /realroot so you can mount the loop, which is located in the real root partition. also, if there is an empty realroot directory inside your loop rootfs, then the real root will be mounted there.
 * loopflags= - flags that the loop will be mounted with (not necessary for the loop= to work)
-* loopfstype= -  (not necessary for the loop= to work)
+* loopfstype= - the type of file system inside the loop file. can be determined automatically, not necessary for the loop= to work
+* loopreadonly - it says that the loop needs to be mounted as readonly even if the real root is not readonly
+* makevartmp - makes a tmpfs "/var" directory by copying the real contents into it. may be necessary for readonly file systems
+* makehometmp - makes a tmpfs "/home" directory by copying the real contents into it. may be necessary for readonly file systems
+* makeroothometmp - makes a tmpfs "/root" directory by copying the real contents into it. may be necessary for readonly file systems
+* logodelay=10 - It was created to create a delay in system loading and the logo was displayed longer.
+* root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
+* root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need root to take up all available space. you also need to add root_processing
