@@ -16,4 +16,4 @@ custom /init script for initramfs in debian, adding several useful parameters to
 * makeroothometmp - makes a tmpfs "/root" directory by copying the real contents into it. may be necessary for readonly file systems
 * logodelay=10 - It was created to create a delay in system loading and the logo was displayed longer.
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
-* root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need root to take up all available space. you also need to add root_processing
+* root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add root_processing
