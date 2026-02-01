@@ -4,6 +4,11 @@ the parameters added here make the most sense for embedded devices
 it also allows you to mount rootfs from *.img (loop), including from real rootfs  
 Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything  
 
+## you may also be interested in
+* https://github.com/igorkll/linux-embedded-patchs - a set of patches for using the linux kernel on embedded locked-down devices
+* https://github.com/igorkll/syslbuild - creating custom embedded linux systems
+* https://github.com/igorkll/WinBox-Maker - a program for creating embedded Windows images
+
 ## kernel parameters
 * clear - clears the terminal during initialization. does this as early as possible. the original script has initramfs.clear, but apparently it doesn't work
 * noCursorBlink - prevents cursor blinking when loading
