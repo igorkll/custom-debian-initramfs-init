@@ -1,4 +1,6 @@
 # custom-debian-initramfs-init
+DOWNLOAD THE RELEASE, NOT THE REPOSITORY!  
+WARNING!!! if you read this text from GITHUB page please, download a release and read description there. on github this text is DEV version (not released yet)  
 custom /init script for initramfs in debian, adding several useful parameters to the cmdline of the kernel  
 the parameters added here make the most sense for embedded devices  
 it also allows you to mount rootfs from *.img (loop), including from real rootfs  
@@ -27,6 +29,23 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * logoautohide - automatically hides the logo just before the initialization system starts. it should be used if your userspace itself does not hide the logo
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
 * root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add root_processing
+* allow_updatescript - allows the update system built into the script to work, which runs a custom script from the directory "/updatescript/updatescript.sh " the next time the system boots, and then deletes the entire directory. please note that at the time of your "updatescript.sh " the real rootfs is accessible via the path "/updateroot" since the initramfs files are located in "/"
+
+## updating system
+this script has a built-in update system that
+it allows you to update the OS automatically by running your script at an early stage of OS boot
+this is especially useful for embedded devices
+to allow it to work, add the "allow_updatescript" flag to the kernel arguments
+### how it works
+* for this to work, it is necessary that the "allow_updatescript" flag be in the kernel arguments, you can leave it forever if you are going to use this functionality
+* to use the update script, you need to create the "/updatescript" directory in the rootfs from the system itself, and in it the file "updatescript.sh"
+* then initiate a reboot of the device
+* custom-debian-init-script will run itself "updatescript.sh " from Ruth from initramfs
+* then it will delete the entire "/updatescript" directory and reboot the device
+* the directory is used so that you can use additional files when updating the system and they are automatically deleted at the end of the update
+* please note that your update script will be executed from initramfs and the root directory "/" is initramfs, the real rootfs is currently located in "/updateroot"
+* this also means that your additional files from the "updatescript" directory are available to your script via the path "/updateroot/updatescript/*"
+* the real root is available to your script for writing on the path "/updateroot"
 
 ## additional utilities that should also be in initramfs for this script to work properly
 "custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself
@@ -48,7 +67,7 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * command: sudo apt install cloud-guest-utils
 * command: sudo apt install e2fsprogs
 * if you use "earlysplash" (alternative initialization of plymouth), then the "/usr/share/initramfs-tools/scripts/init-premount/plymouth" and "/usr/share/initramfs-tools/scripts/init-bottom/plymouth" files must be DELETED so that they do not conflict with the new initialization of plymouth. this will result in the logo not being displayed at all without earlysplash
-* if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a logoautohide kernel argument
-* copy custom_init.sh to "/usr/share/initramfs-tools/init" and make executable
-* copy custom_init_hook.sh to "/etc/initramfs-tools/hooks/custom_init_hook.sh" and make executable
+* if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a "logoautohide" kernel argument
+* copy "custom_init.sh" to "/usr/share/initramfs-tools/init" and make executable
+* copy "custom_init_hook.sh" to "/etc/initramfs-tools/hooks/custom_init_hook.sh" and make executable
 * command: sudo update-initramfs -u
