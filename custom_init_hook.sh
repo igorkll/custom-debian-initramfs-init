@@ -24,4 +24,8 @@ copy_exec /usr/bin/sed /usr/bin
 copy_exec /usr/bin/awk /usr/bin
 copy_exec /usr/sbin/resize2fs /usr/sbin
 copy_exec /usr/sbin/e2fsck /usr/sbin
+copy_exec /usr/sbin/fsck /usr/sbin
+copy_exec /usr/sbin/fsck.ext2 /usr/sbin
+copy_exec /usr/sbin/fsck.ext4 /usr/sbin
+copy_exec /usr/sbin/logsave /usr/sbin
 copy_exec /usr/sbin/sfdisk /usr/sbin
