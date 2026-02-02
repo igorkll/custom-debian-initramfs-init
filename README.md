@@ -41,6 +41,8 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * partx
 * sed
 * awk
+* fsck / fsck.ext2 / fsck.ext4
+* logsave
 
 ## installation
 * command: sudo apt install cloud-guest-utils
