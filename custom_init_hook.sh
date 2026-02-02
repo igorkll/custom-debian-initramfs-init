@@ -17,4 +17,4 @@ esac
 copy_exec /usr/bin/cp /usr/bin
 copy_exec /usr/bin/rm /usr/bin
 copy_exec /usr/bin/growpart /usr/bin
-copy_exec /usr/bin/resize2fs /usr/bin
+copy_exec /usr/sbin/resize2fs /usr/sbin

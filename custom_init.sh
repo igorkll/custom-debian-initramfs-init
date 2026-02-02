@@ -12,6 +12,9 @@ for x in $(cat /proc/cmdline); do
 	quiet)
 		quiet=y
 		;;
+	initramfs.runsize=*)
+		RUNSIZE="${x#initramfs.runsize=}"
+		;;
 
 	# custom init parameters
 	clear)
@@ -163,9 +166,6 @@ for x in $(cat /proc/cmdline); do
 	nfsroot=*)
 		# shellcheck disable=SC2034
 		NFSROOT="${x#nfsroot=}"
-		;;
-	initramfs.runsize=*)
-		RUNSIZE="${x#initramfs.runsize=}"
 		;;
 	ip=*)
 		IP="${x#ip=}"
