@@ -29,8 +29,10 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add root_processing
 
 ## additional utilities that should also be in initramfs for this script to work properly
+"custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself
 * rm
 * cp
+* grep
 * growpart
 * resize2fs
 

@@ -374,7 +374,7 @@ fi
 
 if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	local_device_setup "${ROOT}" "root file system"
-	if echo "$DEV" | grep -q '^/dev/nvme'; then
+	if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
 		PART_NUM="${DEV##*p}"
 		DISK="${DEV%p$PART_NUM}"
 	else
