@@ -384,7 +384,8 @@ if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	
 	if [ -n "$ROOT_EXPAND" ]; then
 		log_begin_msg "Expanding root partition"
-		growpart "$DISK" "$PART_NUM"
+		growpart -u "$DISK" "$PART_NUM"
+		e2fsck -f "$DEV"
 		resize2fs "$DEV"
 		log_end_msg
 	fi

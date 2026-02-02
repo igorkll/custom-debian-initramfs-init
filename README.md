@@ -35,6 +35,12 @@ Attention! I have NO guarantee that this will go down to your system and won't b
 * grep
 * growpart
 * resize2fs
+* e2fsck
+* sfdisk
+* flock
+* partx
+* sed
+* awk
 
 ## installation
 * command: sudo apt install cloud-guest-utils
