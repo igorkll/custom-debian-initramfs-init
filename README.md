@@ -5,10 +5,11 @@ custom /init script for initramfs in debian, adding several useful parameters to
 the parameters added here make the most sense for embedded devices  
 it also allows you to mount rootfs from *.img (loop), including from real rootfs  
 Attention! I have NO guarantee that this will go down to your system and won't break it. I warned you, I'm not responsible for anything  
+this script was primarily intended for embedded devices, but it can also be used for regular desktop/mobile linux distributions  
 
 ## you may also be interested in
 * https://github.com/igorkll/linux-embedded-patchs - a set of patches for using the linux kernel on embedded locked-down devices
-* https://github.com/igorkll/syslbuild - creating custom embedded linux systems
+* https://github.com/igorkll/syslbuild - creating custom embedded linux systems. the build system
 * https://github.com/igorkll/WinBox-Maker - a program for creating embedded Windows images
 
 ## kernel parameters
@@ -47,6 +48,19 @@ ATTENTION! if you use the "loop=" parameter and you actually have an *.img file 
 * please note that your update script will be executed from initramfs and the root directory "/" is initramfs, the real rootfs is currently located in "/updateroot"
 * this also means that your additional files from the "updatescript" directory are available to your script via the path "/updateroot/updatescript/*"
 * the real root is available to your script for writing on the path "/updateroot"
+* at the time of the updatescript execution, you can change the behavior of your plymouth theme by tracking it in the script as shown below
+* you can also interact with plymouth directly from your update script, for example, to display the update progress
+### example of changing the behavior of the plymouth theme when updating the system with an update script
+```
+mode = Plymouth.GetMode();
+if (mode == "system-upgrade") {
+    Window.SetBackgroundTopColor(0.5, 0, 0.5);
+    Window.SetBackgroundBottomColor(0, 0.5, 0.5);
+} else {
+    Window.SetBackgroundTopColor(1, 1, 1);
+    Window.SetBackgroundBottomColor(0.4, 0.70980392156863, 0.98039215686275);
+}
+```
 
 ## additional utilities that should also be in initramfs for this script to work properly
 "custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself

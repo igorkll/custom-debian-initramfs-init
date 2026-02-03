@@ -2,9 +2,9 @@
 
 # Default PATH differs between shells, and is not automatically exported
 # by klibc dash.  Make it consistent.
-if [ -z "$QUIET_RESTARTED" ]; then
-	export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
+if [ -z "$QUIET_RESTARTED" ]; then
 	[ -d /proc ] || mkdir /proc
 	mount -t proc -o nodev,noexec,nosuid proc /proc
 
@@ -86,8 +86,11 @@ mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /ru
 
 plymouth_init() {
 	mkdir -p -m 0755 /run/plymouth
-	/usr/sbin/plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
-	/usr/bin/plymouth --show-splash
+	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
+	if [ "${USING_UPDATESCRIPT}" = "true" ]; then
+		plymouth change-mode --system-upgrade
+	fi
+	plymouth --show-splash
 }
 
 get_uptime() {
