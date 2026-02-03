@@ -13,6 +13,18 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		quiet)
 			quiet=y
 			;;
+		clear)
+			printf "\033[2J\033[H"
+			;;
+		noCursorBlink)
+			printf "\033[?25l"
+			;;
+		noctrlaltdel)
+			echo 0 > /proc/sys/kernel/ctrl-alt-del
+			;;
+		nosysrq)
+			echo 0 > /proc/sys/kernel/sysrq
+			;;
 		esac
 	done
 
@@ -32,23 +44,11 @@ for x in $(cat /proc/cmdline); do
 		;;
 
 	# custom init parameters
-	clear)
-		printf "\033[2J\033[H"
-		;;
-	noCursorBlink)
-		printf "\033[?25l"
-		;;
 	earlysplash)
 		EARLYSPLASH=true
 		;;
 	logoautohide)
 		LOGOAUTOHIDE=true
-		;;
-	noctrlaltdel)
-		echo 0 > /proc/sys/kernel/ctrl-alt-del
-		;;
-	nosysrq)
-		echo 0 > /proc/sys/kernel/sysrq
 		;;
 	allow_updatescript)
 		allow_updatescript=true
