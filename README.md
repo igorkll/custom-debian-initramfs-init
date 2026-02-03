@@ -29,7 +29,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * minlogotime=10 - a more preferable option. sets exactly the minimum display time for the logo and does not make a stupid delay. it starts before of the init system, but after mounting, when the environment is almost ready.
 * logoautohide - automatically hides the logo just before the initialization system starts. it should be used if your userspace itself does not hide the logo
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
-* root_expand - expands the root partition to the maximum possible size on this disk. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add root_processing
+* root_expand - expands the root partition to the maximum possible size on this disk when it is first turned on. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add "root_processing"
+* root_changeids - changes the UUID and PARTUUID of the root partition to a random one the first time it is turned on. you also need to add "root_processing"
 * allow_updatescript - allows the update system built into the script to work, which runs a custom script from the directory "/updatescript/updatescript.sh " the next time the system boots, and then deletes the entire directory. please note that at the time of your "updatescript.sh " the real rootfs is accessible via the path "/updateroot" since the initramfs files are located in "/"
 
 ## updating system
@@ -61,6 +62,10 @@ if (mode == "system-upgrade") {
     Window.SetBackgroundBottomColor(0.4, 0.70980392156863, 0.98039215686275);
 }
 ```
+you can also change the mode that will be set when performing your "updatescript.sh"  
+adding a file "/updatescript/updatethememode.sh" it will be called after initializing the plymouth daemon,  
+but before the show-splash.  
+it can be used to change the logo mode when running updatescript. if there is no file, the "plymouth change-mode --system-upgrade" command will be executed.  
 
 ## additional utilities that should also be in initramfs for this script to work properly
 "custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself
