@@ -25,6 +25,7 @@ copy_exec /usr/bin/awk /usr/bin
 copy_exec /usr/bin/rmdir /usr/bin
 copy_exec /usr/bin/uuidgen /usr/bin
 copy_exec /usr/bin/yes /usr/bin
+copy_exec /usr/bin/tr /usr/bin
 copy_exec /usr/sbin/resize2fs /usr/sbin
 copy_exec /usr/sbin/e2fsck /usr/sbin
 copy_exec /usr/sbin/fsck /usr/sbin

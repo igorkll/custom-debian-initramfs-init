@@ -56,40 +56,8 @@ for x in $(cat /proc/cmdline); do
 	allow_updatescript)
 		allow_updatescript=true
 		;;
-
-	crashkernelauto_part=*)
-		crashkernelauto_part="${x#crashkernelauto_part=}"
-		;;
-	crashkernelauto_kernel=*)
-		crashkernelauto_kernel="${x#crashkernelauto_kernel=}"
-		;;
-	crashkernelauto_initramfs=*)
-		crashkernelauto_initramfs="${x#crashkernelauto_initramfs=}"
-		;;
-	crashkernelauto_args=*)
-		crashkernelauto_args="${x#crashkernelauto_args=}"
-		;;
 	esac
 done
-
-if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_initramfs}" ] && [ -n "${crashkernelauto_args}" ]; then
-	local_device_setup "${crashkernelauto_part}" "kexec file system"
-
-	KEXEC_FSTYPE=$(get_fstype "${DEV}")
-	KEXEC_ARGS=$(printf '%s\n' "$crashkernelauto_args" | tr ',' ' ')
-
-	mkdir -m 0700 /kernelroot
-	if [ -n "$KEXEC_FSTYPE" ]; then
-		mount -r -t "$KEXEC_FSTYPE" "$DEV" /kernelroot
-	else
-		mount -r "$DEV" /kernelroot
-	fi
-	
-	kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
-
-	umount /kernelroot
-	rmdir /kernelroot
-fi
 
 [ -d /dev ] || mkdir -m 0755 /dev
 [ -d /root ] || mkdir -m 0700 /root
@@ -371,6 +339,19 @@ for x in $(cat /proc/cmdline); do
 	internal_init=*)
 		INTERNAL_INIT="${x#internal_init=}"
 		;;
+
+	crashkernelauto_part=*)
+		crashkernelauto_part="${x#crashkernelauto_part=}"
+		;;
+	crashkernelauto_kernel=*)
+		crashkernelauto_kernel="${x#crashkernelauto_kernel=}"
+		;;
+	crashkernelauto_initramfs=*)
+		crashkernelauto_initramfs="${x#crashkernelauto_initramfs=}"
+		;;
+	crashkernelauto_args=*)
+		crashkernelauto_args="${x#crashkernelauto_args=}"
+		;;
 	esac
 done
 
@@ -409,6 +390,25 @@ load_modules
 . /scripts/nfs
 . "/scripts/${BOOT}"
 parse_numeric "${ROOT}"
+
+if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_initramfs}" ] && [ -n "${crashkernelauto_args}" ]; then
+	local_device_setup "${crashkernelauto_part}" "kexec file system"
+
+	KEXEC_FSTYPE=$(get_fstype "${DEV}")
+	KEXEC_ARGS=$(printf '%s\n' "$crashkernelauto_args" | tr ',' ' ')
+
+	mkdir -m 0700 /kernelroot
+	if [ -n "$KEXEC_FSTYPE" ]; then
+		mount -r -t "$KEXEC_FSTYPE" "$DEV" /kernelroot
+	else
+		mount -r "$DEV" /kernelroot
+	fi
+	
+	kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
+
+	umount /kernelroot
+	rmdir /kernelroot
+fi
 
 wait_minlogotime() {
 	if [ -n "${MINLOGOTIME}" ]; then
