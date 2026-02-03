@@ -56,8 +56,40 @@ for x in $(cat /proc/cmdline); do
 	allow_updatescript)
 		allow_updatescript=true
 		;;
+
+	crashkernelauto_part=*)
+		crashkernelauto_part="${x#crashkernelauto_part=}"
+		;;
+	crashkernelauto_kernel=*)
+		crashkernelauto_kernel="${x#crashkernelauto_kernel=}"
+		;;
+	crashkernelauto_initramfs=*)
+		crashkernelauto_initramfs="${x#crashkernelauto_initramfs=}"
+		;;
+	crashkernelauto_args=*)
+		crashkernelauto_args="${x#crashkernelauto_args=}"
+		;;
 	esac
 done
+
+if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_initramfs}" ] && [ -n "${crashkernelauto_args}" ]; then
+	local_device_setup "${crashkernelauto_part}" "kexec file system"
+
+	KEXEC_FSTYPE=$(get_fstype "${DEV}")
+	KEXEC_ARGS=$(printf '%s\n' "$crashkernelauto_args" | tr ',' ' ')
+
+	mkdir -m 0700 /kernelroot
+	if [ -n "$KEXEC_FSTYPE" ]; then
+		mount -r -t "$KEXEC_FSTYPE" "$DEV" /kernelroot
+	else
+		mount -r "$DEV" /kernelroot
+	fi
+	
+	kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
+
+	umount /kernelroot
+	rmdir /kernelroot
+fi
 
 [ -d /dev ] || mkdir -m 0755 /dev
 [ -d /root ] || mkdir -m 0700 /root
@@ -393,8 +425,8 @@ wait_minlogotime() {
 }
 
 wait_logodelay() {
-	if [ "$ROOTDELAY" ]; then
-		sleep "$ROOTDELAY"
+	if [ -n "$LOGODELAY" ]; then
+		sleep "$LOGODELAY"
 	fi
 }
 
@@ -453,7 +485,21 @@ starttime="$(_uptime)"
 starttime=$((starttime + 1)) # round up
 export starttime
 
-wait_logodelay
+if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
+	wait_logodelay
+	wait_minlogotime
+
+	if [ "${LOGOAUTOHIDE}" = "true" ]; then
+		plymouth quit
+	fi
+
+	"${INTERNAL_INIT}"
+	echo b > /proc/sysrq-trigger
+fi
+
+if [ "$ROOTDELAY" ]; then
+	sleep "$ROOTDELAY"
+fi
 
 maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
@@ -473,9 +519,7 @@ then
 fi
 
 # custom init paramenters
-if [ -n "$LOGODELAY" ]; then
-	sleep "$LOGODELAY"
-fi
+wait_logodelay
 
 if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	local_device_setup "${ROOT}" "root file system"
@@ -612,6 +656,17 @@ maybe_break bottom
 run_scripts /scripts/init-bottom
 [ "$quiet" != "y" ] && log_end_msg
 
+if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
+	wait_minlogotime
+
+	if [ "${LOGOAUTOHIDE}" = "true" ]; then
+		plymouth quit
+	fi
+
+	"${INTERNAL_INIT}"
+	echo b > /proc/sysrq-trigger
+fi
+
 # Move /run to the root
 mount -n -o move /run ${rootmnt}/run
 
@@ -708,10 +763,6 @@ wait_minlogotime
 
 if [ "${LOGOAUTOHIDE}" = "true" ]; then
 	plymouth quit
-fi
-
-if [ -x "${INTERNAL_INIT}" ]; then
-	"${INTERNAL_INIT}"
 fi
 
 # Chain to real filesystem
