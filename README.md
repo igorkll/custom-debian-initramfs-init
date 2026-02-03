@@ -39,6 +39,7 @@ it allows you to update the OS automatically by running your script at an early 
 this is especially useful for embedded devices
 to allow it to work, add the "allow_updatescript" flag to the kernel arguments
 ATTENTION! if you use the "loop=" parameter and you actually have an *.img file as rootfs, the update system WILL STILL CHECK FOR "updatescript" IN THE REAL ROOTFS!! Keep this in mind
+ATTENTION! the "updatescript.sh" and "updatethememode.sh" scripts must be located in the "/updatescript" directory and MUST be executable (chmod +x scriptname.sh)
 ### how it works
 * for this to work, it is necessary that the "allow_updatescript" flag be in the kernel arguments, you can leave it forever if you are going to use this functionality
 * to use the update script, you need to create the "/updatescript" directory in the rootfs from the system itself, and in it the file "updatescript.sh"
@@ -66,6 +67,11 @@ you can also change the mode that will be set when performing your "updatescript
 adding a file "/updatescript/updatethememode.sh" it will be called after initializing the plymouth daemon,  
 but before the show-splash.  
 it can be used to change the logo mode when running updatescript. if there is no file, the "plymouth change-mode --system-upgrade" command will be executed.  
+#### default "/updatescript/updatethememode.sh" file content
+```
+#!/bin/sh
+plymouth change-mode --system-upgrade
+```
 
 ## additional utilities that should also be in initramfs for this script to work properly
 "custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself
