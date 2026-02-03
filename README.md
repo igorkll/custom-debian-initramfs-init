@@ -38,6 +38,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * root_changepartid - changes the PARTUUID of the root partition to a random one the first time it is turned on. you also need to add "root_processing"
 * root_changefsuuid - changes the UUID of the rootfs filesystem to a random one the first time it is turned on. you also need to add "root_processing"
 * allow_updatescript - allows the update system built into the script to work, which runs a custom script from the directory "/updatescript/updatescript.sh " the next time the system boots, and then deletes the entire directory. please note that at the time of your "updatescript.sh " the real rootfs is accessible via the path "/updateroot" since the initramfs files are located in "/"
+* internal_init=/myScriptInInitramfs.sh - the path to the executable script inside initramfs. it takes precedence over init and searches for the script inside initramfs itself without making a switch_root. if rootfs has been mounted, it will be accessible from the script using the path "/root". this parameter can be used to create a beautiful kernel_panic via kexec using the same initramfs that boots the system. please note that your script for use with this parameter must be located inside initramfs itself, be executable, and it will be executed from the initramfs environment
 
 ## updating system
 this script has a built-in update system that
@@ -97,11 +98,15 @@ plymouth change-mode --system-upgrade
 * rmdir
 * sgdisk
 * blkid
+* uuidgen
 
 ## installation
 * command: sudo apt install cloud-guest-utils
 * command: sudo apt install e2fsprogs
 * command: sudo apt install gdisk
+* command: sudo apt install uuid-runtime
+* command: sudo apt install sed
+* command: sudo apt install mawk
 * if you use "earlysplash" (alternative initialization of plymouth), then the "/usr/share/initramfs-tools/scripts/init-premount/plymouth" and "/usr/share/initramfs-tools/scripts/init-bottom/plymouth" files must be DELETED so that they do not conflict with the new initialization of plymouth. this will result in the logo not being displayed at all without earlysplash
 * if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a "logoautohide" kernel argument
 * copy "custom_init.sh" to "/usr/share/initramfs-tools/init" and make executable
