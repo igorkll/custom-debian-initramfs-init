@@ -494,7 +494,7 @@ if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; t
 	fi
 
 	"${INTERNAL_INIT}"
-	sleep 5
+	sleep 20
 	echo b > /proc/sysrq-trigger
 fi
 
