@@ -43,7 +43,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * crashkernelauto_part=PART - sets the partition for booting the kernel and initramfs for "kexec -p" inside initramfs. this is necessary to catch the kernel panic. All the same partition definitions as in "root=" are supported here, meaning you can also use UUID, PARTUUID, and LABEL.
 * crashkernelauto_kernel=PATH - the kernel path for "kexec -p" inside the partition specified via "crashkernelauto_part"
 * crashkernelauto_initramfs=PATH - the initramfs path for "kexec -p" inside the partition specified via "crashkernelauto_part"
-* crashkernelauto_args="kernelargs" - arguments for the kernel loaded via "kexec -p". note that all these 4 arguments must be used TOGETHER at the same time. you also need to pass "panic=1 crashkernel=300M" to the first core to make everything work. select the crashkernel size experimentally based on the size of your kernel and initramfs
+* crashkernelauto_args=kernelarg1,kernelarg2,... - arguments for the kernel loaded via "kexec -p". note that all these 4 arguments must be used TOGETHER at the same time. you also need to pass "panic=1 crashkernel=300M" to the first core to make everything work. select the crashkernel size experimentally based on the size of your kernel and initramfs
 
 ## updating system
 this script has a built-in update system that
