@@ -30,7 +30,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * logoautohide - automatically hides the logo just before the initialization system starts. it should be used if your userspace itself does not hide the logo
 * root_processing - enables additional processing of the root partition. It doesn't do anything by itself, but it's needed for other parameters.
 * root_expand - expands the root partition to the maximum possible size on this disk when it is first turned on. This is necessary if you are publishing a system image that can be written to any disk with an unknown size, and you need rootfs to take up all available space. you also need to add "root_processing"
-* root_changeids - changes the UUID and PARTUUID of the root partition to a random one the first time it is turned on. you also need to add "root_processing"
+* root_changepartid - changes the PARTUUID of the root partition to a random one the first time it is turned on. you also need to add "root_processing"
+* root_changefsuuid - changes the UUID of the rootfs filesystem to a random one the first time it is turned on. you also need to add "root_processing"
 * allow_updatescript - allows the update system built into the script to work, which runs a custom script from the directory "/updatescript/updatescript.sh " the next time the system boots, and then deletes the entire directory. please note that at the time of your "updatescript.sh " the real rootfs is accessible via the path "/updateroot" since the initramfs files are located in "/"
 
 ## updating system
