@@ -13,6 +13,9 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		quiet)
 			quiet=y
 			;;
+		nokernellogs)
+			echo 0 > /proc/sys/kernel/printk
+			;;
 		clear)
 			printf "\033[2J\033[H"
 			;;
@@ -88,7 +91,11 @@ plymouth_init() {
 	mkdir -p -m 0755 /run/plymouth
 	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
 	if [ "${USING_UPDATESCRIPT}" = "true" ]; then
-		plymouth change-mode --system-upgrade
+		if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
+			/updateroot/updatescript/updatethememode.sh
+		else
+			plymouth change-mode --system-upgrade
+		fi
 	fi
 	plymouth --show-splash
 }
@@ -322,6 +329,16 @@ for x in $(cat /proc/cmdline); do
 	root_expand)
 		ROOT_EXPAND=y
 		;;
+	root_changepartid)
+		ROOT_CHANGEPARTID=y
+		;;
+	root_changefsuuid)
+		ROOT_CHANGEFSUUID=y
+		;;
+
+	internal_init=*)
+		INTERNAL_INIT="${x#internal_init=}"
+		;;
 	esac
 done
 
@@ -468,6 +485,32 @@ if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	else
 		PART_NUM="${DEV##*[!0-9]}"
 		DISK="${DEV%$PART_NUM}"
+	fi
+
+	# нужно добавить флаги чтобы каждое из этих действий происходило только при первом включении
+
+	if [ -n "$ROOT_CHANGEPARTID" ]; then
+		log_begin_msg "Change id partition"
+		ptable=$(blkid -o value -s PTTYPE "${DISK}" 2>/dev/null)
+		case "$ptable" in
+			gpt)
+				sgdisk -u ${PART_NUM}:$(uuidgen) "${DISK}"
+				;;
+			dos)
+				# ну нет PARTUUID у dos разметки, меняю id всего диска
+				printf '0x%08x\n' $RANDOM$RANDOM | sfdisk --disk-id "${DISK}"
+				;;
+		esac
+		partx -u "$DISK"
+		log_end_msg
+	fi
+
+	if [ -n "$ROOT_CHANGEFSUUID" ]; then
+		log_begin_msg "Change filesystem uuid"
+		e2fsck -fy "$DEV"
+		tune2fs -U random -f "${DEV}"
+		partx -u "$DISK"
+		log_end_msg
 	fi
 	
 	if [ -n "$ROOT_EXPAND" ]; then
