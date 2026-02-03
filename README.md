@@ -21,6 +21,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * clear - clears the terminal during initialization. does this as early as possible. the original script has initramfs.clear, but apparently it doesn't work
 * noCursorBlink - prevents cursor blinking when loading
 * earlysplash - an alternative way to initialize plymouth is to try to initialize plymouth as early as possible. for plymouth to really work, you need the splash parameter right after quiet. in this case, you will get something like "quiet splash earlysplash"
+* nokernellogs - disables all kernel logs immediately after initramfs is started. as practice shows, "quiet" does not hide all the kernel logs if the value "CONFIG_CONSOLE_LOGLEVEL_QUIET" is set to a fairly high level in the kernel config, and for some reason the "loglevel=" parameter does not always work. please note that this does not disable logs that are output BEFORE running the /init script in initramfs. It also won't clear messages that have already been printed
 * noctrlaltdel - disables support for ctrl+alt+del in the kernel as early as possible
 * nosysrq - disables support for sysrq in the kernel as early as possible. As practice shows, sysrq=0 does not always work
 * loop=/path - allows you to mount loop files (rootfs in .img file) as root (it seems like this already exists in ubuntu but not in debian) here is the path relative to the initramfs root, however, the real root is accessible via the path /realroot so you can mount the loop, which is located in the real root partition. also, if there is an empty realroot directory inside your loop rootfs, then the real root will be mounted there.
@@ -99,6 +100,7 @@ plymouth change-mode --system-upgrade
 * sgdisk
 * blkid
 * uuidgen
+* tune2fs
 
 ## installation
 * command: sudo apt install cloud-guest-utils
