@@ -508,7 +508,7 @@ if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 	if [ -n "$ROOT_CHANGEFSUUID" ]; then
 		log_begin_msg "Change filesystem uuid"
 		e2fsck -fy "$DEV"
-		tune2fs -U random -f "${DEV}"
+		yes | tune2fs -U random -f "${DEV}"
 		partx -u "$DISK"
 		log_end_msg
 	fi
@@ -679,7 +679,11 @@ mount -n -o move /proc ${rootmnt}/proc
 wait_minlogotime
 
 if [ "${LOGOAUTOHIDE}" = "true" ]; then
-	/usr/bin/plymouth quit
+	plymouth quit
+fi
+
+if [ -x "${INTERNAL_INIT}" ]; then
+	"${INTERNAL_INIT}"
 fi
 
 # Chain to real filesystem
