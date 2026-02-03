@@ -487,39 +487,67 @@ if [ -n "$ROOT" ] && [ -n "$ROOT_PROCESSING" ]; then
 		DISK="${DEV%$PART_NUM}"
 	fi
 
-	# нужно добавить флаги чтобы каждое из этих действий происходило только при первом включении
+	flag_check_one() {
+		if [ "$BOOT" = "nfs" ]; then
+			nfs_mount_root
+		else
+			local_mount_root
+		fi
+
+		mkdir -m 0700 /flagcheck
+		mount -n -o move "${rootmnt}" /flagcheck
+
+		if [ -d "/flagcheck/$1" ]; then
+			FLAGONE=false
+		else
+			FLAGONE=true
+			mkdir -m 0000 "/flagcheck/$1"
+		fi
+
+		umount /flagcheck
+		rmdir /flagcheck
+	}
 
 	if [ -n "$ROOT_CHANGEPARTID" ]; then
-		log_begin_msg "Change id partition"
-		ptable=$(blkid -o value -s PTTYPE "${DISK}" 2>/dev/null)
-		case "$ptable" in
-			gpt)
-				sgdisk -u ${PART_NUM}:$(uuidgen) "${DISK}"
-				;;
-			dos)
-				# ну нет PARTUUID у dos разметки, меняю id всего диска
-				printf '0x%08x\n' $RANDOM$RANDOM | sfdisk --disk-id "${DISK}"
-				;;
-		esac
-		partx -u "$DISK"
-		log_end_msg
+		flag_check_one "root_changepartuuid.flag"
+		if [ "${FLAGONE}" = "true" ]; then
+			log_begin_msg "Change id partition"
+			ptable=$(blkid -o value -s PTTYPE "${DISK}" 2>/dev/null)
+			case "$ptable" in
+				gpt)
+					sgdisk -u ${PART_NUM}:$(uuidgen) "${DISK}"
+					;;
+				dos)
+					# ну нет PARTUUID у dos разметки, меняю id всего диска
+					printf '0x%08x\n' $RANDOM$RANDOM | sfdisk --disk-id "${DISK}"
+					;;
+			esac
+			partx -u "$DISK"
+			log_end_msg
+		fi
 	fi
 
 	if [ -n "$ROOT_CHANGEFSUUID" ]; then
-		log_begin_msg "Change filesystem uuid"
-		e2fsck -fy "$DEV"
-		yes | tune2fs -U random -f "${DEV}"
-		partx -u "$DISK"
-		log_end_msg
+		flag_check_one "root_changefsuuid.flag"
+		if [ "${FLAGONE}" = "true" ]; then
+			log_begin_msg "Change filesystem uuid"
+			e2fsck -fy "$DEV"
+			yes | tune2fs -U random -f "${DEV}"
+			partx -u "$DISK"
+			log_end_msg
+		fi
 	fi
 	
 	if [ -n "$ROOT_EXPAND" ]; then
-		log_begin_msg "Expanding root partition"
-		growpart "$DISK" "$PART_NUM"
-		partx -u "$DISK"
-		e2fsck -fy "$DEV"
-		resize2fs "$DEV"
-		log_end_msg
+		flag_check_one "root_expand.flag"
+		if [ "${FLAGONE}" = "true" ]; then
+			log_begin_msg "Expanding root partition"
+			growpart "$DISK" "$PART_NUM"
+			partx -u "$DISK"
+			e2fsck -fy "$DEV"
+			resize2fs "$DEV"
+			log_end_msg
+		fi
 	fi
 fi
 
@@ -650,7 +678,7 @@ make_temp() {
 		mount -t tmpfs -o mode=1777,nodev,nosuid tmpfs "$local_target"
 		cp -a "${local_olddir}/." $local_target
 		umount "$local_olddir"
-		rm -rf "$local_olddir"
+		rmdir "$local_olddir"
 	fi
 }
 
