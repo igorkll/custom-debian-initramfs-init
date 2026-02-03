@@ -2,10 +2,25 @@
 
 # Default PATH differs between shells, and is not automatically exported
 # by klibc dash.  Make it consistent.
-export PATH=/sbin:/usr/sbin:/bin:/usr/bin
+if [ -z "$QUIET_RESTARTED" ]; then
+	export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
-[ -d /proc ] || mkdir /proc
-mount -t proc -o nodev,noexec,nosuid proc /proc
+	[ -d /proc ] || mkdir /proc
+	mount -t proc -o nodev,noexec,nosuid proc /proc
+
+	for x in $(cat /proc/cmdline); do
+		case $x in
+		quiet)
+			quiet=y
+			;;
+		esac
+	done
+
+	if [ "$quiet" = "y" ]; then
+		export QUIET_RESTARTED=1
+		exec "$0" "$@" >/dev/null 2>&1
+	fi
+fi
 
 for x in $(cat /proc/cmdline); do
 	case $x in
@@ -34,6 +49,9 @@ for x in $(cat /proc/cmdline); do
 		;;
 	nosysrq)
 		echo 0 > /proc/sys/kernel/sysrq
+		;;
+	allow_updatescript)
+		allow_updatescript=true
 		;;
 	esac
 done
@@ -91,8 +109,9 @@ plymouth_init_and_check() {
 }
 
 # initialization of plymouth has been moved to an earlier stage
-if [ "${EARLYSPLASH}" = "true" ]
-then
+# I'm not launching plymouth that early if the update system is allowed, as I don't know which logo to show yet
+# it will start later when it will be clear whether the OS needs to be updated or not
+if [ "${EARLYSPLASH}" = "true" ] && [ "${allow_updatescript}" != "true" ]; then
 	plymouth_init_and_check
 fi
 
@@ -332,6 +351,79 @@ maybe_break modules
 load_modules
 [ "$quiet" != "y" ] && log_end_msg
 
+# Always load local and nfs (since these might be needed for /etc or
+# /usr, irrespective of the boot script used to mount the rootfs).
+. /scripts/local
+. /scripts/nfs
+. "/scripts/${BOOT}"
+parse_numeric "${ROOT}"
+
+wait_minlogotime() {
+	if [ -n "${MINLOGOTIME}" ]; then
+		LOGO_UPTIME="${UPTIME}"
+
+		if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
+			LOGO_UPTIME=$(( LOGO_UPTIME - PLYMOUTH_INIT_TIME ))
+		fi
+
+		if [ "${LOGO_UPTIME}" -lt "${MINLOGOTIME}" ]; then
+			sleep $((MINLOGOTIME - LOGO_UPTIME))
+		fi
+	fi
+}
+
+wait_logodelay() {
+	if [ "$ROOTDELAY" ]; then
+		sleep "$ROOTDELAY"
+	fi
+}
+
+if [ "${allow_updatescript}" = "true" ]; then
+	if [ -n "$ROOT" ]; then
+		# during the update, the root is always mounted as writable
+		# otherwise, it wouldn't make sense on immune systems.
+		# we also always use real rootfs for updatescript, even if "loop=" is used.
+		# yes, if your OS is immutable, then you will have to temporarily remount the rootfs with write permissions in order to write the updatescript directory itself: mount -o remount,rw /
+		readonly=n
+
+		if [ "$BOOT" = "nfs" ]; then
+			nfs_mount_root
+		else
+			local_mount_root
+		fi
+
+		mkdir -m 0700 /updateroot
+		mount -n -o move "${rootmnt}" /updateroot
+
+		if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
+			USING_UPDATESCRIPT=true
+			if [ "${EARLYSPLASH}" = "true" ]; then
+				plymouth_init_and_check
+			fi
+
+			/updateroot/updatescript/updatescript.sh
+			rm -rf /updateroot/updatescript
+
+			wait_logodelay
+			get_uptime
+			wait_minlogotime
+
+			echo b > /proc/sysrq-trigger
+		else
+			if [ "${EARLYSPLASH}" = "true" ]; then
+				plymouth_init_and_check
+			fi
+		fi
+
+		umount /updateroot
+		rmdir /updateroot
+	else
+		if [ "${EARLYSPLASH}" = "true" ]; then
+			plymouth_init_and_check
+		fi
+	fi
+fi
+
 if [ "${PLYMOUTH_FAILED}" = "true" ]
 then
 	plymouth_init_and_check
@@ -341,9 +433,7 @@ starttime="$(_uptime)"
 starttime=$((starttime + 1)) # round up
 export starttime
 
-if [ "$ROOTDELAY" ]; then
-	sleep "$ROOTDELAY"
-fi
+wait_logodelay
 
 maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
@@ -352,12 +442,7 @@ run_scripts /scripts/init-premount
 
 maybe_break mount
 log_begin_msg "Mounting root file system"
-# Always load local and nfs (since these might be needed for /etc or
-# /usr, irrespective of the boot script used to mount the rootfs).
-. /scripts/local
-. /scripts/nfs
-. "/scripts/${BOOT}"
-parse_numeric "${ROOT}"
+
 maybe_break mountroot
 mount_top
 mount_premount
@@ -545,17 +630,7 @@ get_uptime
 mount -n -o move /proc ${rootmnt}/proc
 
 # custom init paramenters
-if [ -n "${MINLOGOTIME}" ]; then
-	LOGO_UPTIME="${UPTIME}"
-
-	if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
-        LOGO_UPTIME=$(( LOGO_UPTIME - PLYMOUTH_INIT_TIME ))
-    fi
-
-	if [ "${LOGO_UPTIME}" -lt "${MINLOGOTIME}" ]; then
-		sleep $((MINLOGOTIME - LOGO_UPTIME))
-	fi
-fi
+wait_minlogotime
 
 if [ "${LOGOAUTOHIDE}" = "true" ]; then
 	/usr/bin/plymouth quit

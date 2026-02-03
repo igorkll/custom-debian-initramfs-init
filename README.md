@@ -36,6 +36,7 @@ this script has a built-in update system that
 it allows you to update the OS automatically by running your script at an early stage of OS boot
 this is especially useful for embedded devices
 to allow it to work, add the "allow_updatescript" flag to the kernel arguments
+ATTENTION! if you use the "loop=" parameter and you actually have an *.img file as rootfs, the update system WILL STILL CHECK FOR "updatescript" IN THE REAL ROOTFS!! Keep this in mind
 ### how it works
 * for this to work, it is necessary that the "allow_updatescript" flag be in the kernel arguments, you can leave it forever if you are going to use this functionality
 * to use the update script, you need to create the "/updatescript" directory in the rootfs from the system itself, and in it the file "updatescript.sh"
@@ -62,6 +63,7 @@ to allow it to work, add the "allow_updatescript" flag to the kernel arguments
 * awk
 * fsck / fsck.ext2 / fsck.ext4
 * logsave
+* rmdir
 
 ## installation
 * command: sudo apt install cloud-guest-utils
