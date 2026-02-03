@@ -12,6 +12,11 @@ this script was primarily intended for embedded devices, but it can also be used
 * https://github.com/igorkll/syslbuild - creating custom embedded linux systems. the build system
 * https://github.com/igorkll/WinBox-Maker - a program for creating embedded Windows images
 
+## tested on debian
+* variant: minbase
+* suite: bookworm
+* snapshot: http://snapshot.debian.org/archive/debian/20250809T133719Z
+
 ## kernel parameters
 * clear - clears the terminal during initialization. does this as early as possible. the original script has initramfs.clear, but apparently it doesn't work
 * noCursorBlink - prevents cursor blinking when loading
