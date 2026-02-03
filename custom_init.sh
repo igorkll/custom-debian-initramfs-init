@@ -339,6 +339,9 @@ for x in $(cat /proc/cmdline); do
 	internal_init=*)
 		INTERNAL_INIT="${x#internal_init=}"
 		;;
+	internal_init_noquiet)
+		INTERNAL_INIT_NOQUIET=true
+		;;
 
 	crashkernelauto_part=*)
 		crashkernelauto_part="${x#crashkernelauto_part=}"
@@ -493,7 +496,11 @@ if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; t
 		plymouth quit
 	fi
 
-	"${INTERNAL_INIT}"
+	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
+		"${INTERNAL_INIT}" >/dev/console 2>/dev/console
+	else
+		"${INTERNAL_INIT}"
+	fi
 	sleep 20
 	echo b > /proc/sysrq-trigger
 fi
