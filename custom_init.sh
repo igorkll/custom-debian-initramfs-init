@@ -355,6 +355,9 @@ for x in $(cat /proc/cmdline); do
 	crashkernelauto_args=*)
 		crashkernelauto_args="${x#crashkernelauto_args=}"
 		;;
+	crashkernelauto_dtb=*)
+		crashkernelauto_dtb="${x#crashkernelauto_dtb=}"
+		;;
 	esac
 done
 
@@ -406,8 +409,12 @@ if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -
 	else
 		mount -r "$DEV" /kernelroot
 	fi
-	
-	kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
+
+	if [ -n "${crashkernelauto_dtb}" ]; then
+		kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --dtb="/kernelroot/${crashkernelauto_dtb}" --command-line="${KEXEC_ARGS}"
+	else
+		kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
+	fi
 
 	umount /kernelroot
 	rmdir /kernelroot
