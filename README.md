@@ -45,6 +45,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * crashkernelauto_kernel=PATH - the kernel path for "kexec -p" inside the partition specified via "crashkernelauto_part"
 * crashkernelauto_initramfs=PATH - the initramfs path for "kexec -p" inside the partition specified via "crashkernelauto_part"
 * crashkernelauto_args=kernelarg1,kernelarg2=val,... - arguments for the kernel loaded via "kexec -p". note that all these 4 arguments must be used TOGETHER at the same time. you also need to pass "panic=1 crashkernel=256M" to the first core to make everything work. select the crashkernel size experimentally based on the size of your kernel and initramfs. use the character ',' instead of a space. please note that if you are using plymouth for the second core, you WILL NOT be able to see errors on the screen.
+* crashkernelauto_dtb=PATH - this parameter is optional for "crashkernelauto", it is used to specify devicetree. it is especially necessary on ARM platforms
+* crashkernelauto_dtb_auto - a much simpler option than "crashkernelauto_dtb", just pass it and "custom-debian-init-script" will find the "/extlinux/extlinux.conf" file itself and get the selected devicetree from there and specify it as "crashkernelauto_dtb". the search is performed in the section specified as "crashkernelauto_part"
 
 ## updating system
 this script has a built-in update system that
