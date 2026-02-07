@@ -11,6 +11,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * https://github.com/igorkll/linux-embedded-patchs - a set of patches for using the linux kernel on embedded locked-down devices
 * https://github.com/igorkll/syslbuild - creating custom embedded linux systems. the build system
 * https://github.com/igorkll/WinBox-Maker - a program for creating embedded Windows images
+* https://github.com/igorkll/embedded-plymouth - plymouth with a patch to disable ESC key processing (so that the console cannot be displayed during boot)
 
 ## tested on debian
 * variant: minbase
