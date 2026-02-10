@@ -661,13 +661,6 @@ fi
 mountroot
 log_end_msg
 
-if [ -n "$rootsubdirectory" ]; then
-	if [ -d "/root/${rootsubdirectory}/realrootroot" ]; then
-		mount --bind /root "/root/${rootsubdirectory}/realrootroot"
-	fi
-	mount --bind "/root/${rootsubdirectory}" /root
-fi
-
 if read_fstab_entry /usr; then
 	log_begin_msg "Mounting /usr file system"
 	mountfs /usr
@@ -684,6 +677,15 @@ maybe_break bottom
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
 run_scripts /scripts/init-bottom
 [ "$quiet" != "y" ] && log_end_msg
+
+if [ -n "$rootsubdirectory" ]; then
+	log_begin_msg "rootsubdirectory bind"
+	if [ -d "/root/${rootsubdirectory}/realrootroot" ]; then
+		mount --bind /root "/root/${rootsubdirectory}/realrootroot"
+	fi
+	mount --bind "/root/${rootsubdirectory}" /root
+	log_end_msg
+fi
 
 if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	wait_minlogotime
