@@ -37,3 +37,4 @@ copy_exec /usr/sbin/sgdisk /usr/sbin
 copy_exec /usr/sbin/blkid /usr/sbin
 copy_exec /usr/sbin/tune2fs /usr/sbin
 copy_exec /usr/sbin/kexec /usr/sbin
+copy_exec /usr/bin/mount /nativemount

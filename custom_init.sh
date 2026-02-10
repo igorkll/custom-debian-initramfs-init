@@ -693,15 +693,19 @@ if [ -n "$rootsubdirectory" ]; then
 	mkdir -m 0700 /realrootroot
 	mount -n -o move "${rootmnt}" "/realrootroot"
 
-	mount -o bind "/realrootroot/${rootsubdirectory}" /root
 	if [ "$rootsubdirectory_ro" = "y" ]; then
-		mount -o remount,bind,ro "/root"
+		/nativemount -o bind,ro "/realrootroot/${rootsubdirectory}" /root
+		/nativemount -o remount,bind,ro "/root"
+	else
+		/nativemount -o bind "/realrootroot/${rootsubdirectory}" /root
 	fi
 
 	if [ -d "/root/realrootroot" ]; then
-		mount -o bind /realrootroot "/root/realrootroot"
 		if [ "$realrootroot_ro" = "y" ]; then
-			mount -o remount,bind,ro "/root/realrootroot"
+			/nativemount -o bind,ro /realrootroot "/root/realrootroot"
+			/nativemount -o remount,bind,ro "/root/realrootroot"
+		else
+			/nativemount -o bind /realrootroot "/root/realrootroot"
 		fi
 	fi
 
