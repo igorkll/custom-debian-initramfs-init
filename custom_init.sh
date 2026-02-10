@@ -358,6 +358,13 @@ for x in $(cat /proc/cmdline); do
 	crashkernelauto_dtb=*)
 		crashkernelauto_dtb="${x#crashkernelauto_dtb=}"
 		;;
+
+	rootsubdirectory=*)
+		rootsubdirectory="${x#rootsubdirectory=}"
+		;;
+	preinit=*)
+		preinit="${x#preinit=}"
+		;;
 	esac
 done
 
@@ -654,6 +661,13 @@ fi
 mountroot
 log_end_msg
 
+if [ -n "$rootsubdirectory" ]; then
+	if [ -d "/root/${rootsubdirectory}/realrootroot" ]; then
+		mount --bind /root "/root/${rootsubdirectory}/realrootroot"
+	fi
+	mount --bind "/root/${rootsubdirectory}" /root
+fi
+
 if read_fstab_entry /usr; then
 	log_begin_msg "Mounting /usr file system"
 	mountfs /usr
@@ -778,6 +792,10 @@ wait_minlogotime
 
 if [ "${LOGOAUTOHIDE}" = "true" ]; then
 	plymouth quit
+fi
+
+if [ -n "$preinit" ] && [ -x "/root/${preinit}" ]; then
+	"/root/${preinit}"
 fi
 
 # Chain to real filesystem
