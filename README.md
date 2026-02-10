@@ -48,6 +48,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * crashkernelauto_args=kernelarg1,kernelarg2=val,... - arguments for the kernel loaded via "kexec -p". note that all these 4 arguments must be used TOGETHER at the same time. you also need to pass "panic=1 crashkernel=256M" to the first core to make everything work. select the crashkernel size experimentally based on the size of your kernel and initramfs. use the character ',' instead of a space. please note that if you are using plymouth for the second core, you WILL NOT be able to see errors on the screen.
 * crashkernelauto_dtb=PATH - this parameter is optional for "crashkernelauto", it is used to specify devicetree. it is especially necessary on ARM platforms
 * rootsubdirectory - if passed, then any directory inside the real rootfs will be interpreted as rootfs. it works after mounting the loop. It can be used, for example, to have multiple rootfs on the same partition or multiple "virtual" partitions (directories). which share a common space without re-layout. if there is a "realrootroot" directory in this root directory, then the real root will be mounted in it.
+* realrootroot_ro - makes the bind in the "/realrootroot" directory, which references the original root, read-only.
+* rootsubdirectory_ro - makes the root filesystem itself from the rootsubdirectory read-only
 * preinit - runs any script before "init", the path is passed inside initramfs, if you need to execute the script from rootfs, the path will be "/root"
 
 ## updating system

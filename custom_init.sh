@@ -362,6 +362,12 @@ for x in $(cat /proc/cmdline); do
 	rootsubdirectory=*)
 		rootsubdirectory="${x#rootsubdirectory=}"
 		;;
+	realrootroot_ro)
+		realrootroot_ro=y
+		;;
+	rootsubdirectory_ro)
+		rootsubdirectory_ro=y
+		;;
 	preinit=*)
 		preinit="${x#preinit=}"
 		;;
@@ -686,10 +692,17 @@ if [ -n "$rootsubdirectory" ]; then
 
 	mkdir -m 0700 /realrootroot
 	mount -n -o move "${rootmnt}" "/realrootroot"
+
 	mount -o bind "/realrootroot/${rootsubdirectory}" /root
+	if [ "$rootsubdirectory_ro" = "y" ]; then
+		mount -o remount,bind,ro "/root"
+	fi
 
 	if [ -d "/root/realrootroot" ]; then
 		mount -o bind /realrootroot "/root/realrootroot"
+		if [ "$realrootroot_ro" = "y" ]; then
+			mount -o remount,bind,ro "/root/realrootroot"
+		fi
 	fi
 
 	log_end_msg
