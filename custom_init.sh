@@ -453,6 +453,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 		# otherwise, it wouldn't make sense on immune systems.
 		# we also always use real rootfs for updatescript, even if "loop=" is used.
 		# yes, if your OS is immutable, then you will have to temporarily remount the rootfs with write permissions in order to write the updatescript directory itself: mount -o remount,rw /
+		old_readonly=$readonly
 		readonly=n
 
 		if [ "$BOOT" = "nfs" ]; then
@@ -460,6 +461,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 		else
 			local_mount_root
 		fi
+
+		readonly=$old_readonly
 
 		mkdir -m 0700 /updateroot
 		mount -n -o move "${rootmnt}" /updateroot
