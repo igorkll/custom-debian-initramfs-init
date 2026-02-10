@@ -680,10 +680,15 @@ run_scripts /scripts/init-bottom
 
 if [ -n "$rootsubdirectory" ]; then
 	log_begin_msg "rootsubdirectory bind"
-	if [ -d "/root/${rootsubdirectory}/realrootroot" ]; then
-		mount -o bind /root "/root/${rootsubdirectory}/realrootroot"
+
+	mkdir -m 0700 /realrootroot
+	mount -n -o move "${rootmnt}" "/realrootroot"
+	mount -o bind "/realrootroot/${rootsubdirectory}" /root
+
+	if [ -d "/root/realrootroot" ]; then
+		mount -o bind /realrootroot "/root/realrootroot"
 	fi
-	mount -o bind "/root/${rootsubdirectory}" /root
+
 	log_end_msg
 fi
 
