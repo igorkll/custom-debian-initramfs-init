@@ -681,9 +681,9 @@ run_scripts /scripts/init-bottom
 if [ -n "$rootsubdirectory" ]; then
 	log_begin_msg "rootsubdirectory bind"
 	if [ -d "/root/${rootsubdirectory}/realrootroot" ]; then
-		mount --bind /root "/root/${rootsubdirectory}/realrootroot"
+		mount -o bind /root "/root/${rootsubdirectory}/realrootroot"
 	fi
-	mount --bind "/root/${rootsubdirectory}" /root
+	mount -o bind "/root/${rootsubdirectory}" /root
 	log_end_msg
 fi
 
