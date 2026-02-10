@@ -821,8 +821,8 @@ if [ "${LOGOAUTOHIDE}" = "true" ]; then
 	plymouth quit
 fi
 
-if [ -n "$preinit" ] && [ -x "/root/${preinit}" ]; then
-	"/root/${preinit}"
+if [ -n "$preinit" ] && [ -x "/${preinit}" ]; then
+	"/${preinit}"
 fi
 
 # Chain to real filesystem
