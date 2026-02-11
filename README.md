@@ -50,7 +50,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * rootsubdirectory - if passed, then any directory inside the real rootfs will be interpreted as rootfs. it works after mounting the loop. It can be used, for example, to have multiple rootfs on the same partition or multiple "virtual" partitions (directories). which share a common space without re-layout. if there is a "realrootroot" directory in this root directory, then the real root will be mounted in it.
 * realrootroot_ro - makes the bind in the "/realrootroot" directory, which references the original root, read-only.
 * rootsubdirectory_ro - makes the root filesystem itself from the rootsubdirectory read-only
-* preinit - runs any script before "init", the path is passed inside initramfs, if you need to execute the script from rootfs, the path will be "/root"
+* preinit - runs any script before "init", the path is passed inside initramfs, if you need to execute the script from rootfs, the path will be "/root". please note that the preinit script is executed from the initramfs environment
 
 ## updating system
 this script has a built-in update system that
