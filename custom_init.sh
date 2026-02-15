@@ -513,6 +513,7 @@ export starttime
 
 if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	wait_logodelay
+	get_uptime
 	wait_minlogotime
 
 	if [ "${LOGOAUTOHIDE}" = "true" ]; then
@@ -536,6 +537,10 @@ maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
 run_scripts /scripts/init-premount
 [ "$quiet" != "y" ] && log_end_msg
+
+if [ -z "$PLYMOUTH_INIT_TIME" ]; then
+	PLYMOUTH_INIT_TIME="${UPTIME}"
+fi
 
 maybe_break mount
 log_begin_msg "Mounting root file system"
@@ -713,6 +718,7 @@ if [ -n "$rootsubdirectory" ]; then
 fi
 
 if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
+	get_uptime
 	wait_minlogotime
 
 	if [ "${LOGOAUTOHIDE}" = "true" ]; then
