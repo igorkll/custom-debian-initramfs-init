@@ -51,6 +51,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * realrootroot_ro - makes the bind in the "/realrootroot" directory, which references the original root, read-only.
 * rootsubdirectory_ro - makes the root filesystem itself from the rootsubdirectory read-only
 * preinit - runs any script before "init", the path is passed inside initramfs, if you need to execute the script from rootfs, the path will be "/root". please note that the preinit script is executed from the initramfs environment
+* waitFbBeforeModules - waits for fb0 to appear before loading the kernel modules
+* waitFbAfterModules - waits for fb0 to appear after loading the kernel modules
 
 ## updating system
 this script has a built-in update system that
