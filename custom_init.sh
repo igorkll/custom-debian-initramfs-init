@@ -56,6 +56,12 @@ for x in $(cat /proc/cmdline); do
 	allow_updatescript)
 		allow_updatescript=true
 		;;
+	waitFbBeforeModules)
+		waitFbBeforeModules=y
+		;;
+	waitFbAfterModules)
+		waitFbAfterModules=y
+		;;
 	esac
 done
 
@@ -117,6 +123,16 @@ plymouth_init_and_check() {
 		PLYMOUTH_FAILED=true
 	fi
 }
+
+wait_fb() {
+	while [ ! -e "/dev/fb0" ]; do
+		sleep 0.2
+	done
+}
+
+if [ "$waitFbBeforeModules" = "y" ]; then
+	wait_fb
+fi
 
 # initialization of plymouth has been moved to an earlier stage
 # I'm not launching plymouth that early if the update system is allowed, as I don't know which logo to show yet
@@ -409,6 +425,10 @@ load_modules
 . /scripts/nfs
 . "/scripts/${BOOT}"
 parse_numeric "${ROOT}"
+
+if [ "$waitFbAfterModules" = "y" ]; then
+	wait_fb
+fi
 
 if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_initramfs}" ] && [ -n "${crashkernelauto_args}" ]; then
 	local_device_setup "${crashkernelauto_part}" "kexec file system"
