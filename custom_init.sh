@@ -510,6 +510,8 @@ mount_bootmnt_and_data() {
 	fi
 
 	echo "DEV: ${DEV}"
+	echo "DISK: ${DISK}"
+	echo "BASE: ${BASE}"
 	echo "PARTS: ${PARTS}"
 	echo "FIRST_PART: ${FIRST_PART}"
 	echo "LAST_PART: ${LAST_PART}"
