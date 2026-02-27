@@ -58,6 +58,10 @@ this script was primarily intended for embedded devices, but it can also be used
 * prohibit_initramfs_shell - if this argument is passed, then in cases of problems with rootfs, the device will simply reboot without falling into shell initramfs
 * init_quiet - starts the initialization system from stdin, stderr, stdout to /dev/null and not /dev/console
 
+## mount_bootmnt & mount_data
+* note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
+* also if you use a loop= that is, there will be an attempt to mount these file systems, so your loop file system should also have these directories.
+
 ## updating system
 this script has a built-in update system that
 it allows you to update the OS automatically by running your script at an early stage of OS boot
@@ -121,6 +125,8 @@ plymouth change-mode --system-upgrade
 * yes
 * kexec
 * tr
+* tail
+* head
 
 ## installation
 * command: sudo apt install cloud-guest-utils

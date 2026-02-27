@@ -486,6 +486,26 @@ wait_logodelay() {
 	fi
 }
 
+mount_bootmnt_and_data() {
+	local_device_setup "${ROOT}" "root file system"
+	if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
+		PART_NUM="${DEV##*p}"
+		DISK="${DEV%p$PART_NUM}"
+	else
+		PART_NUM="${DEV##*[!0-9]}"
+		DISK="${DEV%$PART_NUM}"
+	fi
+
+	BASE="$(basename "$DISK")"
+	PARTS=$(ls /sys/class/block | grep "^${BASE}" | grep -E "${BASE}(p)?[0-9]+$" | sed "s/${BASE}p\?//" | sort -n)
+
+	FIRST_PART=$(echo "$PARTS" | head -n1)
+	LAST_PART=$(echo "$PARTS" | tail -n1)
+
+	FIRST_DEV="${DISK}${FIRST_PART}"
+	LAST_DEV="${DISK}${LAST_PART}"
+}
+
 if [ "${allow_updatescript}" = "true" ]; then
 	if [ -n "$ROOT" ]; then
 		# during the update, the root is always mounted as writable
@@ -502,6 +522,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 		fi
 
 		readonly=$old_readonly
+
+		mount_bootmnt_and_data
 
 		mkdir -m 0700 /updateroot
 		mount -n -o move "${rootmnt}" /updateroot
@@ -700,6 +722,8 @@ if [ -n "$LOOP" ]; then
 		mknod /dev/loop-root b 7 0
 		losetup /dev/loop-root "$LOOP"
 		mount ${roflag} -t ${FSTYPE} ${LOOPFLAGS} /dev/loop-root "${rootmnt}"
+
+		mount_bootmnt_and_data
 
 		if [ -d "/realroot" ] && [ -d "${rootmnt}/realroot" ]; then
 			mount -n -o move /realroot ${rootmnt}/realroot
