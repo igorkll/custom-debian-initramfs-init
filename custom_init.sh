@@ -387,6 +387,16 @@ for x in $(cat /proc/cmdline); do
 	preinit=*)
 		preinit="${x#preinit=}"
 		;;
+
+	mount_bootmnt)
+		mount_bootmnt=y
+		;;
+	mount_data)
+		mount_data=y
+		;;
+	prohibit_initramfs_shell)
+		prohibit_initramfs_shell=y
+		;;
 	esac
 done
 
@@ -506,6 +516,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 			get_uptime
 			wait_minlogotime
 
+			sync
+			sleep 1
 			echo b > /proc/sysrq-trigger
 		else
 			if [ "${EARLYSPLASH}" = "true" ]; then
@@ -545,6 +557,8 @@ if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; t
 	else
 		"${INTERNAL_INIT}"
 	fi
+	
+	sync
 	sleep 20
 	echo b > /proc/sysrq-trigger
 fi
@@ -745,7 +759,14 @@ if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 		plymouth quit
 	fi
 
-	"${INTERNAL_INIT}"
+	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
+		"${INTERNAL_INIT}" >/dev/console 2>/dev/console
+	else
+		"${INTERNAL_INIT}"
+	fi
+	
+	sync
+	sleep 20
 	echo b > /proc/sysrq-trigger
 fi
 
@@ -849,6 +870,12 @@ fi
 
 if [ -n "$preinit" ] && [ -x "/${preinit}" ]; then
 	"/${preinit}"
+fi
+
+if [ -n "$prohibit_initramfs_shell" ] && [ ! -x "${rootmnt}/${init}" ]; then
+	sync
+	sleep 1
+	echo b > /proc/sysrq-trigger
 fi
 
 # Chain to real filesystem
