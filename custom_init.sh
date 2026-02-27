@@ -525,7 +525,7 @@ mount_bootmnt_and_data() {
 		rmdir /flagcheck
 	}
 
-	flag_check_one "data_expand.flag"
+	flag_check_one_data "data_expand.flag"
 	if [ "${FLAGONE}" = "true" ]; then
 		if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
 			DATA_PART_NUM="${LAST_DEV##*p}"
@@ -541,11 +541,11 @@ mount_bootmnt_and_data() {
 		log_end_msg
 	fi
 
-	if [ "$FIRST_DEV" != "$DEV" ]; then
+	if [ "$FIRST_DEV" != "$DEV" ] && [ -d "${rootmnt}/bootmnt" ]; then
 		/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
 	fi
 
-	if [ "$LAST_DEV" != "$DEV" ]; then
+	if [ "$LAST_DEV" != "$DEV" ] && [ -d "${rootmnt}/data" ]; then
 		/nativemount -t auto "$LAST_DEV" "${rootmnt}/data" -o rw
 	fi
 }
