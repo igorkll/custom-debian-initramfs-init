@@ -541,8 +541,13 @@ mount_bootmnt_and_data() {
 		log_end_msg
 	fi
 
-	/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
-	/nativemount -t auto "$LAST_DEV" "${rootmnt}/data" -o rw
+	if [ "$FIRST_DEV" != "$DEV" ]; then
+		/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
+	fi
+
+	if [ "$LAST_DEV" != "$DEV" ]; then
+		/nativemount -t auto "$LAST_DEV" "${rootmnt}/data" -o rw
+	fi
 }
 
 if [ "${allow_updatescript}" = "true" ]; then
