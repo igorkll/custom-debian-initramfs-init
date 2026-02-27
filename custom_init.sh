@@ -487,7 +487,7 @@ wait_logodelay() {
 }
 
 mount_bootmnt_and_data() {
-	local_device_setup "${ROOT}" "root file system"
+	local_device_setup "${ROOT}" "root file system (for bootmnt and data)"
 	if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
 		PART_NUM="${DEV##*p}"
 		DISK="${DEV%p$PART_NUM}"
@@ -510,6 +510,10 @@ mount_bootmnt_and_data() {
 		LAST_DEV="${DISK}${LAST_PART}"
 	fi
 
+	echo "DEV: ${DEV}"
+	echo "FIRST_DEV: ${FIRST_DEV}"
+	echo "LAST_DEV: ${LAST_DEV}"
+
 	flag_check_one_data() {
 		mkdir -m 0700 /flagcheck
 		/nativemount -t auto "$LAST_DEV" /flagcheck -o rw
@@ -525,27 +529,27 @@ mount_bootmnt_and_data() {
 		rmdir /flagcheck
 	}
 
-	flag_check_one_data "data_expand.flag"
-	if [ "${FLAGONE}" = "true" ]; then
-		if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
-			DATA_PART_NUM="${LAST_DEV##*p}"
-		else
-			DATA_PART_NUM="${LAST_DEV##*[!0-9]}"
-		fi
-
-		log_begin_msg "Expanding data partition"
-		growpart "$DISK" "$DATA_PART_NUM"
-		partx -u "$DISK"
-		e2fsck -fy "$LAST_DEV"
-		resize2fs "$LAST_DEV"
-		log_end_msg
-	fi
-
 	if [ "$FIRST_DEV" != "$DEV" ] && [ -d "${rootmnt}/bootmnt" ]; then
 		/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
 	fi
 
 	if [ "$LAST_DEV" != "$DEV" ] && [ -d "${rootmnt}/data" ]; then
+		flag_check_one_data "data_expand.flag"
+		if [ "${FLAGONE}" = "true" ]; then
+			if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
+				DATA_PART_NUM="${LAST_DEV##*p}"
+			else
+				DATA_PART_NUM="${LAST_DEV##*[!0-9]}"
+			fi
+
+			log_begin_msg "Expanding data partition"
+			growpart "$DISK" "$DATA_PART_NUM"
+			partx -u "$DISK"
+			e2fsck -fy "$LAST_DEV"
+			resize2fs "$LAST_DEV"
+			log_end_msg
+		fi
+		
 		/nativemount -t auto "$LAST_DEV" "${rootmnt}/data" -o rw
 	fi
 }
@@ -767,8 +771,6 @@ if [ -n "$LOOP" ]; then
 		losetup /dev/loop-root "$LOOP"
 		mount ${roflag} -t ${FSTYPE} ${LOOPFLAGS} /dev/loop-root "${rootmnt}"
 
-		mount_bootmnt_and_data
-
 		if [ -d "/realroot" ] && [ -d "${rootmnt}/realroot" ]; then
 			mount -n -o move /realroot ${rootmnt}/realroot
 		fi
@@ -778,6 +780,7 @@ if [ -n "$LOOP" ]; then
 fi
 
 mountroot
+mount_bootmnt_and_data
 log_end_msg
 
 if read_fstab_entry /usr; then
