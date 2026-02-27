@@ -498,7 +498,6 @@ mount_bootmnt_and_data() {
 
 	BASE="$(basename "$DISK")"
 	PARTS=$(ls /sys/class/block | grep "^${BASE}" | grep -E "${BASE}(p)?[0-9]+$" | sed "s/${BASE}p\?//" | sort -n)
-
 	FIRST_PART=$(echo "$PARTS" | head -n1)
 	LAST_PART=$(echo "$PARTS" | tail -n1)
 
@@ -511,6 +510,9 @@ mount_bootmnt_and_data() {
 	fi
 
 	echo "DEV: ${DEV}"
+	echo "PARTS: ${PARTS}"
+	echo "FIRST_PART: ${FIRST_PART}"
+	echo "LAST_PART: ${LAST_PART}"
 	echo "FIRST_DEV: ${FIRST_DEV}"
 	echo "LAST_DEV: ${LAST_DEV}"
 
