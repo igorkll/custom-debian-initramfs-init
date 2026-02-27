@@ -14,6 +14,8 @@ esac
 
 . /usr/share/initramfs-tools/hook-functions
 
+copy_exec /usr/bin/mount /nativemount
+
 copy_exec /usr/bin/cp /usr/bin
 copy_exec /usr/bin/rm /usr/bin
 copy_exec /usr/bin/growpart /usr/bin
@@ -37,7 +39,8 @@ copy_exec /usr/sbin/sgdisk /usr/sbin
 copy_exec /usr/sbin/blkid /usr/sbin
 copy_exec /usr/sbin/tune2fs /usr/sbin
 copy_exec /usr/sbin/kexec /usr/sbin
-copy_exec /usr/bin/mount /nativemount
 copy_exec /usr/bin/head /usr/bin
 copy_exec /usr/bin/tail /usr/bin
 copy_exec /usr/bin/basename /usr/bin
+copy_exec /usr/bin/sort /usr/bin
+copy_exec /usr/bin/ls /usr/bin

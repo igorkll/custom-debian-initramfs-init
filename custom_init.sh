@@ -502,8 +502,47 @@ mount_bootmnt_and_data() {
 	FIRST_PART=$(echo "$PARTS" | head -n1)
 	LAST_PART=$(echo "$PARTS" | tail -n1)
 
-	FIRST_DEV="${DISK}${FIRST_PART}"
-	LAST_DEV="${DISK}${LAST_PART}"
+	if echo "$DISK" | grep -Eq 'nvme|mmcblk'; then
+		FIRST_DEV="${DISK}p${FIRST_PART}"
+		LAST_DEV="${DISK}p${LAST_PART}"
+	else
+		FIRST_DEV="${DISK}${FIRST_PART}"
+		LAST_DEV="${DISK}${LAST_PART}"
+	fi
+
+	flag_check_one_data() {
+		mkdir -m 0700 /flagcheck
+		/nativemount -t auto "$LAST_DEV" /flagcheck -o rw
+
+		if [ -d "/flagcheck/$1" ]; then
+			FLAGONE=false
+		else
+			FLAGONE=true
+			mkdir -m 0000 "/flagcheck/$1"
+		fi
+
+		umount /flagcheck
+		rmdir /flagcheck
+	}
+
+	flag_check_one "data_expand.flag"
+	if [ "${FLAGONE}" = "true" ]; then
+		if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
+			DATA_PART_NUM="${LAST_DEV##*p}"
+		else
+			DATA_PART_NUM="${LAST_DEV##*[!0-9]}"
+		fi
+
+		log_begin_msg "Expanding data partition"
+		growpart "$DISK" "$DATA_PART_NUM"
+		partx -u "$DISK"
+		e2fsck -fy "$LAST_DEV"
+		resize2fs "$LAST_DEV"
+		log_end_msg
+	fi
+
+	/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
+	/nativemount -t auto "$LAST_DEV" "${rootmnt}/data" -o rw
 }
 
 if [ "${allow_updatescript}" = "true" ]; then
