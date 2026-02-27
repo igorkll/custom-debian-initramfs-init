@@ -397,6 +397,9 @@ for x in $(cat /proc/cmdline); do
 	prohibit_initramfs_shell)
 		prohibit_initramfs_shell=y
 		;;
+	init_quiet)
+		init_quiet=y
+		;;
 	esac
 done
 
@@ -880,7 +883,18 @@ fi
 
 # Chain to real filesystem
 # shellcheck disable=SC2086,SC2094
-exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
+if [ -n "$init_quiet" ]; then
+	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
+else
+	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/null" >"${rootmnt}/dev/null" 2>&1
+fi
+
+if [ -n "$prohibit_initramfs_shell" ]; then
+	sync
+	sleep 1
+	echo b > /proc/sysrq-trigger
+fi
+
 echo "Something went badly wrong in the initramfs."
 panic "Please file a bug on initramfs-tools."
 

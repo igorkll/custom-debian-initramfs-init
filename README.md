@@ -56,6 +56,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * mount_bootmnt - mounts the first partition of the same device where the rootfs is located in /bootmnt (not /boot because I use this directory for another one). this is triggered before updatescript and this directory becomes available for updatescript as /updateroot/bootmnt. for this function to work, there must already be a /bootmnt directory in rootfs
 * mount_data - mounts the last partition of the same device where the rootfs is located in /data. this happens before updatescript is launched, so this directory becomes available for updatescript via the path /updateroot/data. please note that when the system is started for the first time, the /data section will be enlarged to the maximum possible size for this media. for this function to work, there must already be a /data directory in rootfs
 * prohibit_initramfs_shell - if this argument is passed, then in cases of problems with rootfs, the device will simply reboot without falling into shell initramfs
+* init_quiet - starts the initialization system from stdin, stderr, stdout to /dev/null and not /dev/console
 
 ## updating system
 this script has a built-in update system that
