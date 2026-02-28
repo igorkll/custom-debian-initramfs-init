@@ -602,6 +602,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 			fi
 		fi
 
+		umount /updateroot/data
+		umount /updateroot/bootmnt
 		umount /updateroot
 		rmdir /updateroot
 	else
