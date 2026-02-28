@@ -959,9 +959,9 @@ fi
 # Chain to real filesystem
 # shellcheck disable=SC2086,SC2094
 if [ -n "$init_quiet" ]; then
-	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
-else
 	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/null" >"${rootmnt}/dev/null" 2>&1
+else
+	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
 fi
 
 if [ -n "$prohibit_initramfs_shell" ]; then
