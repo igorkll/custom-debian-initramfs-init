@@ -476,7 +476,7 @@ if [ "$waitFbAfterModules" = "y" ]; then
 	wait_fb
 fi
 
-if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_initramfs}" ] && [ -n "${crashkernelauto_args}" ]; then
+if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_args}" ]; then
 	local_device_setup "${crashkernelauto_part}" "kexec file system"
 
 	KEXEC_FSTYPE=$(get_fstype "${DEV}")
@@ -489,11 +489,19 @@ if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -
 		mount -r "$DEV" /kernelroot
 	fi
 
-	if [ -n "${crashkernelauto_dtb}" ]; then
-		kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --dtb="/kernelroot/${crashkernelauto_dtb}" --command-line="${KEXEC_ARGS}"
-	else
-		kexec -p "/kernelroot/${crashkernelauto_kernel}" --initrd="/kernelroot/${crashkernelauto_initramfs}" --command-line="${KEXEC_ARGS}"
+	kexec_cmd="kexec -p \"/kernelroot/${crashkernelauto_kernel}\""
+
+	if [ -n "${crashkernelauto_initramfs}" ]; then
+		kexec_cmd="${kexec_cmd} --initrd=\"/kernelroot/${crashkernelauto_initramfs}\""
 	fi
+
+	if [ -n "${crashkernelauto_dtb}" ]; then
+		kexec_cmd="${kexec_cmd} --dtb=\"/kernelroot/${crashkernelauto_dtb}\""
+	fi
+
+	kexec_cmd="${kexec_cmd} --command-line=\"${KEXEC_ARGS}\""
+
+	eval ${kexec_cmd}
 
 	umount /kernelroot
 	rmdir /kernelroot
