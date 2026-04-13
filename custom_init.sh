@@ -104,6 +104,10 @@ plymouth_init() {
 		fi
 	fi
 	plymouth --show-splash
+
+	if [ -n "$startupsound_afterLogoShow" ]; then
+		playsound "$startupsound_afterLogoShow"
+	fi
 }
 
 get_uptime() {
@@ -400,8 +404,29 @@ for x in $(cat /proc/cmdline); do
 	init_quiet)
 		init_quiet=y
 		;;
+
+	startupsound_start=*)
+		startupsound_start="${x#startupsound_start=}"
+		;;
+	startupsound_afterMountRoot=*)
+		startupsound_afterMountRoot="${x#startupsound_afterMountRoot=}"
+		;;
+	startupsound_afterLogoShow=*)
+		startupsound_afterLogoShow="${x#startupsound_afterLogoShow=}"
+		;;
+	startupsound_beforeSwitchRoot=*)
+		startupsound_beforeSwitchRoot="${x#startupsound_beforeSwitchRoot=}"
+		;;
 	esac
 done
+
+playsound() {
+	aplay "$1" &
+}
+
+if [ -n "$startupsound_start" ]; then
+	playsound "$startupsound_start"
+fi
 
 # Default to BOOT=local if no boot script defined.
 if [ -z "${BOOT}" ]; then
@@ -831,6 +856,10 @@ if [ -n "$rootsubdirectory" ]; then
 	log_end_msg
 fi
 
+if [ -n "$startupsound_afterMountRoot" ]; then
+	playsound "$startupsound_afterMountRoot"
+fi
+
 if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	get_uptime
 	wait_minlogotime
@@ -956,6 +985,10 @@ if [ -n "$prohibit_initramfs_shell" ] && [ ! -x "${rootmnt}/${init}" ]; then
 	sync
 	sleep 1
 	echo b > /proc/sysrq-trigger
+fi
+
+if [ -n "$startupsound_beforeSwitchRoot" ]; then
+	playsound "$startupsound_beforeSwitchRoot"
 fi
 
 # Chain to real filesystem

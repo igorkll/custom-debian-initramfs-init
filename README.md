@@ -57,6 +57,10 @@ this script was primarily intended for embedded devices, but it can also be used
 * mount_data - mounts the last partition of the same device where the rootfs is located in /data. this happens before updatescript is launched, so this directory becomes available for updatescript via the path /updateroot/data. please note that when the system is started for the first time, the /data section will be enlarged to the maximum possible size for this media. for this function to work, there must already be a /data directory in rootfs
 * prohibit_initramfs_shell - if this argument is passed, then in cases of problems with rootfs, the device will simply reboot without falling into shell initramfs (IT'S BROKEN, IT DOESN'T WORK IN ALL CASES AT THE MOMENT.)
 * init_quiet - starts the initialization system from stdin, stderr, stdout to /dev/null and not /dev/console
+* startupsound_start - it tries to play the power-on sound immediately (as early as possible). It will only work if the kernel immediately knows how to work with your sound card. in this case, the audio file should be located right inside initramfs.
+* startupsound_afterMountRoot - the most versatile option. it allows you to play a sound after mounting the rootfs. you can also use the paths in the root file system via /root/test.wav.
+* startupsound_afterLogoShow - It plays the sound as soon as the logo is displayed. it only works if earlysplash is specified.
+* startupsound_beforeSwitchRoot - it plays a sound at the very end of initialization. before switchroot. ALL THE "startupsound" PARAMETERS PRODUCE SOUND THROUGH "aplay" USING THE .wav FORMAT
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
@@ -129,6 +133,7 @@ plymouth change-mode --system-upgrade
 * head
 * sort
 * basename
+* aplay
 
 ## installation
 * command: sudo apt install cloud-guest-utils
@@ -138,6 +143,7 @@ plymouth change-mode --system-upgrade
 * command: sudo apt install sed
 * command: sudo apt install mawk
 * command: sudo apt install kexec-tools
+* command: sudo apt install alsa-utils
 * if you use "earlysplash" (alternative initialization of plymouth), then the "/usr/share/initramfs-tools/scripts/init-premount/plymouth" and "/usr/share/initramfs-tools/scripts/init-bottom/plymouth" files must be DELETED so that they do not conflict with the new initialization of plymouth. this will result in the logo not being displayed at all without earlysplash
 * if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a "logoautohide" kernel argument
 * copy "custom_init.sh" to "/usr/share/initramfs-tools/init" and make executable
