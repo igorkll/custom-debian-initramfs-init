@@ -44,9 +44,9 @@ this script was primarily intended for embedded devices, but it can also be used
 * internal_init_noquiet - it only works in one case. if the internal_init script is used and the quiet mode is used. if this parameter is passed and quiet is used, the internal_init script WILL NOT be run in hidden mode
 * crashkernelauto_part=PART - sets the partition for booting the kernel and initramfs for "kexec -p" inside initramfs. this is necessary to catch the kernel panic. All the same partition definitions as in "root=" are supported here, meaning you can also use UUID, PARTUUID, and LABEL.
 * crashkernelauto_kernel=PATH - the kernel path for "kexec -p" inside the partition specified via "crashkernelauto_part"
-* crashkernelauto_initramfs=PATH - the initramfs path for "kexec -p" inside the partition specified via "crashkernelauto_part"
+* crashkernelauto_initramfs=PATH - the initramfs path for "kexec -p" inside the partition specified via "crashkernelauto_part" (optional for crashkernelauto)
 * crashkernelauto_args=kernelarg1,kernelarg2=val,... - arguments for the kernel loaded via "kexec -p". note that all these 4 arguments must be used TOGETHER at the same time. you also need to pass "panic=1 crashkernel=256M" to the first core to make everything work. select the crashkernel size experimentally based on the size of your kernel and initramfs. use the character ',' instead of a space. please note that if you are using plymouth for the second core, you WILL NOT be able to see errors on the screen.
-* crashkernelauto_dtb=PATH - this parameter is optional for "crashkernelauto", it is used to specify devicetree. it is especially necessary on ARM platforms
+* crashkernelauto_dtb=PATH - this parameter is optional for "crashkernelauto", it is used to specify devicetree. it is especially necessary on ARM platforms. (optional for crashkernelauto)
 * rootsubdirectory - if passed, then any directory inside the real rootfs will be interpreted as rootfs. it works after mounting the loop. It can be used, for example, to have multiple rootfs on the same partition or multiple "virtual" partitions (directories). which share a common space without re-layout. if there is a "realrootroot" directory in this root directory, then the real root will be mounted in it.
 * realrootroot_ro - makes the bind in the "/realrootroot" directory, which references the original root, read-only.
 * rootsubdirectory_ro - makes the root filesystem itself from the rootsubdirectory read-only
@@ -134,6 +134,7 @@ plymouth change-mode --system-upgrade
 * sort
 * basename
 * aplay
+* seq
 
 ## installation
 * command: sudo apt install cloud-guest-utils

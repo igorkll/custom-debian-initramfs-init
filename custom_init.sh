@@ -421,7 +421,15 @@ for x in $(cat /proc/cmdline); do
 done
 
 playsound() {
-	aplay "$1" &
+	local sound_file="$1"
+	local max_card=${2:-3}
+	local max_dev=${3:-3}
+
+	for card in $(seq 0 $max_card); do
+		for dev in $(seq 0 $max_dev); do
+			aplay -D "hw:${card},${dev}" "$sound_file" &
+		done
+	done
 }
 
 if [ -n "$startupsound_start" ]; then
