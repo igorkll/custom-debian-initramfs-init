@@ -122,8 +122,6 @@ plymouth_init_and_check() {
 		get_uptime
 		PLYMOUTH_INIT_TIME="${UPTIME}"
 	else
-		# even so, we're still trying to initialize, we'll just try again later (for example, after loading the kernel modules)
-		plymouth_init
 		PLYMOUTH_FAILED=true
 	fi
 }
@@ -652,11 +650,10 @@ if [ "${allow_updatescript}" = "true" ]; then
 			plymouth_init_and_check
 		fi
 	fi
-fi
-
-if [ "${PLYMOUTH_FAILED}" = "true" ]
-then
-	plymouth_init_and_check
+else
+	if [ "${PLYMOUTH_FAILED}" = "true" ]; then
+		plymouth_init_and_check
+	fi
 fi
 
 starttime="$(_uptime)"
@@ -692,21 +689,12 @@ maybe_break premount
 run_scripts /scripts/init-premount
 [ "$quiet" != "y" ] && log_end_msg
 
-if [ -z "$PLYMOUTH_INIT_TIME" ]; then
-	PLYMOUTH_INIT_TIME="${UPTIME}"
-fi
-
 maybe_break mount
 log_begin_msg "Mounting root file system"
 
 maybe_break mountroot
 mount_top
 mount_premount
-
-if [ "${PLYMOUTH_FAILED}" = "true" ]
-then
-	plymouth_init_and_check
-fi
 
 # custom init paramenters
 wait_logodelay
