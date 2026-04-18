@@ -988,7 +988,7 @@ fi
 if [ -n "$prohibit_initramfs_shell" ] && [ ! -x "${rootmnt}/${init}" ]; then
 	sync
 	sleep 1
-	echo b > /proc/sysrq-trigger
+	echo b > ${rootmnt}/proc/sysrq-trigger
 fi
 
 if [ -n "$startupsound_beforeSwitchRoot" ]; then
@@ -1006,7 +1006,7 @@ fi
 if [ -n "$prohibit_initramfs_shell" ]; then
 	sync
 	sleep 1
-	echo b > /proc/sysrq-trigger
+	echo b > ${rootmnt}/proc/sysrq-trigger
 fi
 
 echo "Something went badly wrong in the initramfs."
