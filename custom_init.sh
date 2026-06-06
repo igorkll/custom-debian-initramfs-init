@@ -441,6 +441,10 @@ playsound() {
 	local max_card=${2:-3}
 	local max_dev=${3:-3}
 
+	for c in $(amixer scontrols | cut -d"'" -f2); do
+		amixer set "$c" 100% unmute 2>/dev/null
+	done
+
 	for card in $(seq 0 $max_card); do
 		for dev in $(seq 0 $max_dev); do
 			aplay -D "plughw:${card},${dev}" "$sound_file" &
