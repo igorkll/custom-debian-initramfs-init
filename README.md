@@ -61,7 +61,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * startupsound_afterMountRoot - the most versatile option. it allows you to play a sound after mounting the rootfs. you can also use the paths in the root file system via /root/test.wav.
 * startupsound_afterLogoShow - It plays the sound as soon as the logo is displayed. it only works if earlysplash is specified.
 * startupsound_beforeSwitchRoot - it plays a sound at the very end of initialization. before switchroot. ALL THE "startupsound" PARAMETERS PRODUCE SOUND THROUGH "aplay" USING THE .wav FORMAT
-* if_not_quiet_redirect_to_console - if this flag is set and the quiet flag is not set, then all initramfs init output will be redirected to /dev/console directly. this is necessary if you have multiple console= specified in the kernel arguments and the output should be output not only in primary
+* if_not_quiet_redirect_to_kmsg - if this flag is set and the quiet flag is not set, then all initramfs init output will be redirected to /dev/kmsg directly. this is necessary if you have multiple console= specified in the kernel arguments and the output should be output not only in primary
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems

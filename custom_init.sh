@@ -13,8 +13,8 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		quiet)
 			quiet=y
 			;;
-		if_not_quiet_redirect_to_console)
-			if_not_quiet_redirect_to_console=y
+		if_not_quiet_redirect_to_kmsg)
+			if_not_quiet_redirect_to_kmsg=y
 			;;
 		nokernellogs)
 			echo 0 > /proc/sys/kernel/printk
@@ -37,9 +37,9 @@ if [ -z "$QUIET_RESTARTED" ]; then
 	if [ "$quiet" = "y" ]; then
 		export QUIET_RESTARTED=1
 		exec "$0" "$@" >/dev/null 2>&1
-	elif [ "$if_not_quiet_redirect_to_console" = "y" ]; then
+	elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
 		export QUIET_RESTARTED=1
-		exec "$0" "$@" >/dev/console 2>&1
+		exec "$0" "$@" >/dev/kmsg 2>&1
 	fi
 fi
 
