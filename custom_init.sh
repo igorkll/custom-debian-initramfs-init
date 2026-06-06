@@ -443,7 +443,7 @@ playsound() {
 
 	for card in $(seq 0 $max_card); do
 		for dev in $(seq 0 $max_dev); do
-			aplay -D "hw:${card},${dev}" "$sound_file" &
+			aplay -D "plughw:${card},${dev}" "$sound_file" &
 		done
 	done
 }
