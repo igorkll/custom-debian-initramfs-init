@@ -64,6 +64,9 @@ for x in $(cat /proc/cmdline); do
 	allow_updatescript)
 		allow_updatescript=true
 		;;
+	updatescript_state_not_need_in_plymouth)
+		updatescript_state_not_need_in_plymouth=true
+		;;
 	waitFbBeforeModules)
 		waitFbBeforeModules=y
 		;;
@@ -104,7 +107,7 @@ mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /ru
 plymouth_init() {
 	mkdir -p -m 0755 /run/plymouth
 	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
-	if [ "${USING_UPDATESCRIPT}" = "true" ]; then
+	if [ "${updatescript_state_not_need_in_plymouth}" != "true" ] && [ "${USING_UPDATESCRIPT}" = "true" ]; then
 		if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
 			/updateroot/updatescript/updatethememode.sh
 		else
@@ -124,13 +127,15 @@ get_uptime() {
 }
 
 plymouth_init_and_check() {
-	if [ -e /dev/fb0 ]; then
-		plymouth_init
-		PLYMOUTH_FAILED=false
-		get_uptime
-		PLYMOUTH_INIT_TIME="${UPTIME}"
-	else
-		PLYMOUTH_FAILED=true
+	if [ -z "${PLYMOUTH_INIT_TIME}" ]; then
+		if [ -e /dev/fb0 ]; then
+			plymouth_init
+			PLYMOUTH_FAILED=false
+			get_uptime
+			PLYMOUTH_INIT_TIME="${UPTIME}"
+		else
+			PLYMOUTH_FAILED=true
+		fi
 	fi
 }
 
@@ -147,8 +152,10 @@ fi
 # initialization of plymouth has been moved to an earlier stage
 # I'm not launching plymouth that early if the update system is allowed, as I don't know which logo to show yet
 # it will start later when it will be clear whether the OS needs to be updated or not
-if [ "${EARLYSPLASH}" = "true" ] && [ "${allow_updatescript}" != "true" ]; then
-	plymouth_init_and_check
+if [ "${EARLYSPLASH}" = "true" ]; then
+	if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ]; then
+		plymouth_init_and_check
+	fi
 fi
 
 # Export the dpkg architecture
