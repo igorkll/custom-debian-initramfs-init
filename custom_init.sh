@@ -73,6 +73,9 @@ for x in $(cat /proc/cmdline); do
 	waitFbAfterModules)
 		waitFbAfterModules=y
 		;;
+	while_after_updatescript_crash)
+		while_after_updatescript_crash=true
+		;;
 	esac
 done
 
@@ -644,7 +647,15 @@ if [ "${allow_updatescript}" = "true" ]; then
 				plymouth_init_and_check
 			fi
 
-			/updateroot/updatescript/updatescript.sh
+			if ! /updateroot/updatescript/updatescript.sh; then
+				if [ "$while_after_updatescript_crash" = "true" ]; then
+					echo "updatescript crashed, entering infinite loop"
+					while true; do
+						sleep 1
+					done
+				fi
+			fi
+
 			rm -rf /updateroot/updatescript
 
 			wait_logodelay
