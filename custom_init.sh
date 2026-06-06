@@ -13,6 +13,9 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		quiet)
 			quiet=y
 			;;
+		if_not_quiet_redirect_to_console)
+			if_not_quiet_redirect_to_console=y
+			;;
 		nokernellogs)
 			echo 0 > /proc/sys/kernel/printk
 			;;
@@ -34,6 +37,9 @@ if [ -z "$QUIET_RESTARTED" ]; then
 	if [ "$quiet" = "y" ]; then
 		export QUIET_RESTARTED=1
 		exec "$0" "$@" >/dev/null 2>&1
+	elif [ "$if_not_quiet_redirect_to_console" = "y" ]; then
+		export QUIET_RESTARTED=1
+		exec "$0" "$@" >/dev/console 2>&1
 	fi
 fi
 
@@ -474,6 +480,10 @@ if [ "$waitFbAfterModules" = "y" ]; then
 	wait_fb
 fi
 
+starttime="$(_uptime)"
+starttime=$((starttime + 1)) # round up
+export starttime
+
 if [ -n "${crashkernelauto_part}" ] && [ -n "${crashkernelauto_kernel}" ] && [ -n "${crashkernelauto_args}" ]; then
 	local_device_setup "${crashkernelauto_part}" "kexec file system"
 
@@ -655,10 +665,6 @@ else
 		plymouth_init_and_check
 	fi
 fi
-
-starttime="$(_uptime)"
-starttime=$((starttime + 1)) # round up
-export starttime
 
 if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	wait_logodelay
