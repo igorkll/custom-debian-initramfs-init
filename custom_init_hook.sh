@@ -47,6 +47,7 @@ copy_exec /usr/bin/sort /usr/bin
 copy_exec /usr/bin/seq /usr/bin
 copy_exec /usr/bin/aplay /usr/bin
 copy_exec /usr/bin/bash /usr/bin
+copy_exec /usr/bin/amixer /usr/bin
 
 mkdir -p "${DESTDIR}/usr/share"
 cp -r /usr/share/alsa "${DESTDIR}/usr/share/"

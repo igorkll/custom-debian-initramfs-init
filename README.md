@@ -145,6 +145,8 @@ plymouth change-mode --system-upgrade
 * basename
 * aplay
 * seq
+* bash
+* amixer
 
 ## installation
 * command: sudo apt install cloud-guest-utils
