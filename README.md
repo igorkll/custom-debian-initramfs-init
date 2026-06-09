@@ -13,6 +13,9 @@ this script was primarily intended for embedded devices, but it can also be used
 * https://github.com/igorkll/WinBox-Maker - a program for creating embedded Windows images
 * https://github.com/igorkll/embedded-plymouth - plymouth with a patch to disable ESC key processing (so that the console cannot be displayed during boot)
 
+## roadmap
+* a flag that crashes the download if more than one candidate for mounting rootfs is found
+
 ## tested on debian
 
 ### bookworm
