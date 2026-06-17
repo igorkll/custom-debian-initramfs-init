@@ -126,6 +126,8 @@ plymouth_init() {
 	if [ -n "$startupsound_afterLogoShow" ]; then
 		playsound "$startupsound_afterLogoShow"
 	fi
+
+	echo "Plymouth succesful"
 }
 
 get_uptime() {
@@ -142,6 +144,7 @@ plymouth_init_and_check() {
 			PLYMOUTH_INIT_TIME="${UPTIME}"
 		else
 			PLYMOUTH_FAILED=true
+			echo "Plymouth failed"
 		fi
 	fi
 }
@@ -659,6 +662,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 			USING_UPDATESCRIPT=true
 			if [ "${EARLYSPLASH}" = "true" ]; then
 				plymouth_init_and_check
+				echo "Plymouth failed"
 			fi
 
 			if ! /updateroot/updatescript/updatescript.sh; then
