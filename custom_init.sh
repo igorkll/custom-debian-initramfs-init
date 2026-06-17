@@ -500,6 +500,12 @@ if [ "$waitFbAfterModules" = "y" ]; then
 	wait_fb
 fi
 
+if [ "${EARLYSPLASH}" = "true" ]; then
+	if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ]; then
+		plymouth_init_and_check
+	fi
+fi
+
 starttime="$(_uptime)"
 starttime=$((starttime + 1)) # round up
 export starttime
