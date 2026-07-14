@@ -908,6 +908,11 @@ if [ -n "$rootsubdirectory" ]; then
 	log_end_msg
 fi
 
+if [ -n "$boot_to_bash_shell" ]; then
+	echo "RUN BASH SHELL"
+	bash
+fi
+
 if [ -n "$startupsound_afterMountRoot" ]; then
 	playsound "$startupsound_afterMountRoot"
 fi
@@ -1014,10 +1019,6 @@ fi
 # make /root tmpfs
 if [ "$makeroothometmp" = "true" ]; then
 	make_temp "root"
-fi
-
-if [ -n "$boot_to_bash_shell" ]; then
-	bash
 fi
 
 # Move virtual filesystems over to the real filesystem
