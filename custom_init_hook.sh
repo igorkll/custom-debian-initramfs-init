@@ -53,3 +53,4 @@ copy_exec /usr/bin/stty /usr/bin
 
 mkdir -p "${DESTDIR}/usr/share"
 cp -r /usr/share/alsa "${DESTDIR}/usr/share/"
+cp -r /usr/share/terminfo "${DESTDIR}/usr/share/"
