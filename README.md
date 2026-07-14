@@ -153,6 +153,7 @@ plymouth change-mode --system-upgrade
 * amixer
 * reset
 * stty
+* cut
 
 ## installation
 * command: sudo apt install cloud-guest-utils

@@ -50,6 +50,7 @@ copy_exec /usr/bin/bash /usr/bin
 copy_exec /usr/bin/amixer /usr/bin
 copy_exec /usr/bin/reset /usr/bin
 copy_exec /usr/bin/stty /usr/bin
+copy_exec /usr/bin/cut /usr/bin
 
 mkdir -p "${DESTDIR}/usr/share"
 cp -r /usr/share/alsa "${DESTDIR}/usr/share/"
