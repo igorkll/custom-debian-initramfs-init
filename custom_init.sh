@@ -910,7 +910,7 @@ fi
 
 if [ -n "$boot_to_bash_shell" ]; then
 	echo "RUN BASH SHELL"
-	bash
+	bash <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
 fi
 
 if [ -n "$startupsound_afterMountRoot" ]; then
@@ -926,7 +926,7 @@ if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	fi
 
 	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
-		"${INTERNAL_INIT}" >/dev/console 2>/dev/console
+		"${INTERNAL_INIT}" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
 	else
 		"${INTERNAL_INIT}"
 	fi
