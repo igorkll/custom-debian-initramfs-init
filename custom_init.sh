@@ -46,11 +46,10 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		esac
 	done
 
+	export QUIET_RESTARTED=1
 	if [ "$quiet" = "y" ]; then
-		export QUIET_RESTARTED=1
 		exec "$0" "$@" >/dev/null 2>&1
 	elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
-		export QUIET_RESTARTED=1
 		exec > >(while IFS= read -r line; do
 			printf '<4>%s\n' "$line" > /dev/kmsg
 		done) 2>&1
