@@ -882,9 +882,16 @@ maybe_break bottom
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
 ls -l /dev/console
 run_scripts /scripts/init-bottom
-ls -l /${rootmnt}/dev/console
 # да бл... кароче при изменении точки монтирования /dev сбрасывается console текущего скрипта
 # толь udev ломает console, хуй пойми оно оно потом частенько нетуды пишет. был uart стал VT
+
+# во первых я поставлю bind для сохранения работоспособными старых путей
+mount --bind /${rootmnt}/dev /dev
+
+
+
+ls -l /dev/console
+
 [ "$quiet" != "y" ] && log_end_msg
 
 if [ -n "$rootsubdirectory" ]; then
@@ -913,7 +920,6 @@ if [ -n "$rootsubdirectory" ]; then
 fi
 
 if [ -n "$boot_to_bash_shell" ]; then
-	ls -l /dev/console
 	echo "RUN BASH SHELL"
 	bash
 fi
