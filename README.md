@@ -121,7 +121,7 @@ plymouth change-mode --system-upgrade
 ```
 
 ## additional utilities that should also be in initramfs for this script to work properly
-"custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself
+"custom_init_hook.sh" copies the necessary files along with the dependencies to initramfs by itself  
 * rm
 * cp
 * grep
@@ -151,6 +151,8 @@ plymouth change-mode --system-upgrade
 * seq
 * bash
 * amixer
+* reset
+* stty
 
 ## installation
 * command: sudo apt install cloud-guest-utils
