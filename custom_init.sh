@@ -4,6 +4,8 @@
 # by klibc dash.  Make it consistent.
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
+ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
+
 if [ -z "$QUIET_RESTARTED" ]; then
 	[ -d /proc ] || mkdir -m 0755 /proc
 	mount -t proc -o nodev,noexec,nosuid proc /proc
@@ -49,6 +51,9 @@ if [ -z "$QUIET_RESTARTED" ]; then
 		exec > >(while IFS= read -r line; do
 			printf '<4>%s\n' "$line" > /dev/kmsg
 		done) 2>&1
+	else
+		echo "CONSOLE: ${ACTIVE_CONSOLE}"
+		exec "$0" "$@" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
 	fi
 fi
 
@@ -718,7 +723,7 @@ if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; t
 	fi
 
 	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
-		"${INTERNAL_INIT}" </dev/console >/dev/console 2>/dev/console
+		"${INTERNAL_INIT}" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>$1
 	else
 		"${INTERNAL_INIT}"
 	fi
@@ -872,8 +877,6 @@ if read_fstab_entry /usr; then
 	log_end_msg
 fi
 
-/nativels -l /dev/console
-
 # Mount cleanup
 mount_bottom
 nfs_bottom
@@ -881,18 +884,12 @@ local_bottom
 
 maybe_break bottom
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
+
+/nativels /dev
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
-/nativels -l /dev/console
 run_scripts /scripts/init-bottom
-# да бл... кароче при изменении точки монтирования /dev сбрасывается console текущего скрипта
-# толь udev ломает console, хуй пойми оно оно потом частенько нетуды пишет. был uart стал VT
 
-# во первых я поставлю bind для сохранения работоспособными старых путей
-mount --bind /${rootmnt}/dev /dev
-
-
-
-/nativels -l /dev/console
+/nativels /dev
 
 [ "$quiet" != "y" ] && log_end_msg
 
@@ -923,6 +920,7 @@ fi
 
 if [ -n "$boot_to_bash_shell" ]; then
 	echo "RUN BASH SHELL"
+	reset
 	bash
 fi
 
@@ -1066,7 +1064,7 @@ fi
 if [ -n "$init_quiet" ]; then
 	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/null" >"${rootmnt}/dev/null" 2>&1
 else
-	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
+	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/${ACTIVE_CONSOLE}" >"${rootmnt}/dev/${ACTIVE_CONSOLE}" 2>&1
 fi
 
 if [ -n "$prohibit_initramfs_shell" ]; then
