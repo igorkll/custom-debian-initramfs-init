@@ -718,7 +718,7 @@ if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; t
 	fi
 
 	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
-		"${INTERNAL_INIT}" >/dev/console 2>/dev/console
+		"${INTERNAL_INIT}" </dev/console >/dev/console 2>/dev/console
 	else
 		"${INTERNAL_INIT}"
 	fi
@@ -872,6 +872,8 @@ if read_fstab_entry /usr; then
 	log_end_msg
 fi
 
+/nativels -l /dev/console
+
 # Mount cleanup
 mount_bottom
 nfs_bottom
@@ -880,7 +882,7 @@ local_bottom
 maybe_break bottom
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
-ls -l /dev/console
+/nativels -l /dev/console
 run_scripts /scripts/init-bottom
 # да бл... кароче при изменении точки монтирования /dev сбрасывается console текущего скрипта
 # толь udev ломает console, хуй пойми оно оно потом частенько нетуды пишет. был uart стал VT
@@ -890,7 +892,7 @@ mount --bind /${rootmnt}/dev /dev
 
 
 
-ls -l /dev/console
+/nativels -l /dev/console
 
 [ "$quiet" != "y" ] && log_end_msg
 
