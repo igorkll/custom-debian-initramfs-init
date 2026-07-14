@@ -451,11 +451,13 @@ done
 
 playsound() {
 	local sound_file="$1"
-	local max_card=${2:-3}
-	local max_dev=${3:-3}
+	local max_card=${2:-7}
+	local max_dev=${3:-7}
 
-	for c in $(amixer scontrols | cut -d"'" -f2); do
-		amixer set "$c" 100% unmute 2>/dev/null
+	for card in $(seq 0 $max_card); do
+		for c in $(amixer -c $card scontrols | cut -d"'" -f2); do
+			amixer -c $card sset "$c" 100% unmute 2>/dev/null
+		done
 	done
 
 	for card in $(seq 0 $max_card); do
