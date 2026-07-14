@@ -4,8 +4,6 @@
 # by klibc dash.  Make it consistent.
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
-ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
-
 if [ -z "$QUIET_RESTARTED" ]; then
 	[ -d /proc ] || mkdir -m 0755 /proc
 	mount -t proc -o nodev,noexec,nosuid proc /proc
@@ -14,6 +12,11 @@ if [ -z "$QUIET_RESTARTED" ]; then
 	# are used; which they will be, but it's worth pointing out
 	[ -d /dev ] || mkdir -m 0755 /dev
 	mount -t devtmpfs -o nosuid,mode=0755 udev /dev
+
+	[ -d /sys ] || mkdir /sys
+	mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
+
+	ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
 
 	for x in $(cat /proc/cmdline); do
 		case $x in
@@ -57,6 +60,8 @@ if [ -z "$QUIET_RESTARTED" ]; then
 	fi
 fi
 
+ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
+
 for x in $(cat /proc/cmdline); do
 	case $x in
 	quiet)
@@ -92,10 +97,8 @@ for x in $(cat /proc/cmdline); do
 done
 
 [ -d /root ] || mkdir -m 0700 /root
-[ -d /sys ] || mkdir /sys
 [ -d /tmp ] || mkdir -m 1777 /tmp
 mkdir -p /var/lock
-mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 mount -t tmpfs -o "nodev,nosuid,size=${RUNSIZE:-10%},mode=1777" tmpfs /tmp
 
 if [ "$quiet" != "y" ]; then
@@ -937,7 +940,7 @@ if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	fi
 
 	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
-		"${INTERNAL_INIT}" <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
+		"${INTERNAL_INIT}" <"${rootmnt}/dev/${ACTIVE_CONSOLE}" >"${rootmnt}/dev/${ACTIVE_CONSOLE}" 2>&1
 	else
 		"${INTERNAL_INIT}"
 	fi
