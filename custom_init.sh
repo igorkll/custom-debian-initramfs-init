@@ -4,62 +4,57 @@
 # by klibc dash.  Make it consistent.
 export PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
-if [ -z "$QUIET_RESTARTED" ]; then
-	[ -d /proc ] || mkdir -m 0755 /proc
-	mount -t proc -o nodev,noexec,nosuid proc /proc
+[ -d /proc ] || mkdir -m 0755 /proc
+mount -t proc -o nodev,noexec,nosuid proc /proc
 
-	# Note that this only becomes /dev on the real filesystem if udev's scripts
-	# are used; which they will be, but it's worth pointing out
-	[ -d /dev ] || mkdir -m 0755 /dev
-	mount -t devtmpfs -o nosuid,mode=0755 udev /dev
+# Note that this only becomes /dev on the real filesystem if udev's scripts
+# are used; which they will be, but it's worth pointing out
+[ -d /dev ] || mkdir -m 0755 /dev
+mount -t devtmpfs -o nosuid,mode=0755 udev /dev
 
-	[ -d /sys ] || mkdir /sys
-	mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
-
-	ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
-
-	for x in $(cat /proc/cmdline); do
-		case $x in
-		quiet)
-			quiet=y
-			;;
-		if_not_quiet_redirect_to_kmsg)
-			if_not_quiet_redirect_to_kmsg=y
-			;;
-		nokernellogs)
-			echo 0 > /proc/sys/kernel/printk
-			;;
-		clear)
-			printf "\033[2J\033[H"
-			printf "\033[2J\033[H" > /dev/tty1
-			;;
-		noCursorBlink)
-			printf "\033[?25l"
-			printf "\033[?25l" > /dev/tty1
-			;;
-		noctrlaltdel)
-			echo 0 > /proc/sys/kernel/ctrl-alt-del
-			;;
-		nosysrq)
-			echo 0 > /proc/sys/kernel/sysrq
-			;;
-		esac
-	done
-
-	export QUIET_RESTARTED=1
-	if [ "$quiet" = "y" ]; then
-		exec "$0" "$@" >/dev/null 2>&1
-	elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
-		exec > >(while IFS= read -r line; do
-			printf '<4>%s\n' "$line" > /dev/kmsg
-		done) 2>&1
-	else
-		echo "CONSOLE: ${ACTIVE_CONSOLE}"
-		exec "$0" "$@" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
-	fi
-fi
+[ -d /sys ] || mkdir /sys
+mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 
 ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
+
+for x in $(cat /proc/cmdline); do
+	case $x in
+	quiet)
+		quiet=y
+		;;
+	if_not_quiet_redirect_to_kmsg)
+		if_not_quiet_redirect_to_kmsg=y
+		;;
+	nokernellogs)
+		echo 0 > /proc/sys/kernel/printk
+		;;
+	clear)
+		printf "\033[2J\033[H"
+		printf "\033[2J\033[H" > /dev/tty1
+		;;
+	noCursorBlink)
+		printf "\033[?25l"
+		printf "\033[?25l" > /dev/tty1
+		;;
+	noctrlaltdel)
+		echo 0 > /proc/sys/kernel/ctrl-alt-del
+		;;
+	nosysrq)
+		echo 0 > /proc/sys/kernel/sysrq
+		;;
+	esac
+done
+
+if [ "$quiet" = "y" ]; then
+	exec >/dev/null 2>&1
+elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
+	exec > >(while IFS= read -r line; do
+		printf '<4>%s\n' "$line" > /dev/kmsg
+	done) 2>&1
+else
+	echo "CONSOLE: ${ACTIVE_CONSOLE}"
+	exec <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
+fi
 
 for x in $(cat /proc/cmdline); do
 	case $x in
