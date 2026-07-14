@@ -440,6 +440,10 @@ for x in $(cat /proc/cmdline); do
 	startupsound_beforeSwitchRoot=*)
 		startupsound_beforeSwitchRoot="${x#startupsound_beforeSwitchRoot=}"
 		;;
+
+	boot_to_bash_shell)
+		boot_to_bash_shell=y
+		;;
 	esac
 done
 
@@ -1010,6 +1014,13 @@ fi
 # make /root tmpfs
 if [ "$makeroothometmp" = "true" ]; then
 	make_temp "root"
+fi
+
+if [ -n "$boot_to_bash_shell" ]; then
+	if [ "${EARLYSPLASH}" = "true" ]; then
+		plymouth quit
+	fi
+	bash
 fi
 
 # Move virtual filesystems over to the real filesystem
