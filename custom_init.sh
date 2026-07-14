@@ -1017,9 +1017,7 @@ if [ "$makeroothometmp" = "true" ]; then
 fi
 
 if [ -n "$boot_to_bash_shell" ]; then
-	if [ "${EARLYSPLASH}" = "true" ]; then
-		plymouth quit
-	fi
+	reset
 	bash
 fi
 

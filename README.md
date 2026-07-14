@@ -74,6 +74,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * if_not_quiet_redirect_to_kmsg - if this flag is set and the quiet flag is not set, then all initramfs init output will be redirected to /dev/kmsg directly. this is necessary if you have multiple console= specified in the kernel arguments and the output should be output not only in primary (NOT WORKING)
 * updatescript_state_not_need_in_plymouth - deprives plymouth of information that a system update will be performed at the moment. this allows you to run plymouth earlier on some platforms with the "allow_updatescript" flag set, as this can be done BEFORE rootfs is mounted and the /updatescript directory is checked. if this flag is set, you will not be able to make different plymouth screensavers depending on whether the system is being updated.
 * while_after_updatescript_crash - causes initramfs to fall into an eternal loop in case of updatescript crash
+* boot_to_bash_shell - stops the booting and starts bash in initramfs on the console when booting
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
