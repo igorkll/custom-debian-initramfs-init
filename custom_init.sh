@@ -880,7 +880,11 @@ local_bottom
 maybe_break bottom
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
+ls -l /dev/console
 run_scripts /scripts/init-bottom
+ls -l /${rootmnt}/dev/console
+# да бл... кароче при изменении точки монтирования /dev сбрасывается console текущего скрипта
+# толь udev ломает console, хуй пойми оно оно потом частенько нетуды пишет. был uart стал VT
 [ "$quiet" != "y" ] && log_end_msg
 
 if [ -n "$rootsubdirectory" ]; then
@@ -909,8 +913,9 @@ if [ -n "$rootsubdirectory" ]; then
 fi
 
 if [ -n "$boot_to_bash_shell" ]; then
+	ls -l /dev/console
 	echo "RUN BASH SHELL"
-	bash <"${rootmnt}/dev/console" >"${rootmnt}/dev/console" 2>&1
+	bash
 fi
 
 if [ -n "$startupsound_afterMountRoot" ]; then
