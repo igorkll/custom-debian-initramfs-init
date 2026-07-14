@@ -886,13 +886,8 @@ local_bottom
 
 maybe_break bottom
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-bottom"
-
-/nativels /dev
 # We expect udev's init-bottom script to move /dev to ${rootmnt}/dev
 run_scripts /scripts/init-bottom
-
-/nativels /dev
-
 [ "$quiet" != "y" ] && log_end_msg
 
 if [ -n "$rootsubdirectory" ]; then
