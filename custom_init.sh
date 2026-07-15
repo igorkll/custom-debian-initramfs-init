@@ -16,7 +16,7 @@ mount -t devtmpfs -o nosuid,mode=0755 udev /dev
 mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 
 # ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
-ACTIVE_CONSOLE="/dev/console"
+ACTIVE_CONSOLE="console"
 
 for x in $(cat /proc/cmdline); do
 	case $x in
@@ -1076,6 +1076,7 @@ fi
 
 # Chain to real filesystem
 # shellcheck disable=SC2086,SC2094
+echo "run-init"
 if [ -n "$init_quiet" ]; then
 	exec run-init ${drop_caps} "${rootmnt}" "${init}" "$@" <"${rootmnt}/dev/null" >"${rootmnt}/dev/null" 2>&1
 else
