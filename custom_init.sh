@@ -15,7 +15,8 @@ mount -t devtmpfs -o nosuid,mode=0755 udev /dev
 [ -d /sys ] || mkdir /sys
 mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 
-ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
+# ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
+ACTIVE_CONSOLE="/dev/console"
 
 for x in $(cat /proc/cmdline); do
 	case $x in
@@ -746,6 +747,15 @@ fi
 maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
 run_scripts /scripts/init-premount
+
+if [ "$quiet" = "y" ]; then
+	exec >/dev/null 2>&1
+elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
+	exec >/dev/kmsg 2>&1
+else
+	exec <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
+fi
+
 [ "$quiet" != "y" ] && log_end_msg
 
 maybe_break mount
