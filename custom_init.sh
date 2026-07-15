@@ -339,7 +339,9 @@ for x in $(cat /proc/cmdline); do
 	loopreadonly)
 		LOOPREADONLY=true
 		;;
-	
+	realroot_ro)
+		realroot_ro=y
+		;;
 	makevartmp)
 		makevartmp=true
 		;;
@@ -859,7 +861,13 @@ if [ -n "$LOOP" ]; then
 		mount ${roflag} -t ${FSTYPE} ${LOOPFLAGS} /dev/loop-root "${rootmnt}"
 
 		if [ -d "/realroot" ] && [ -d "${rootmnt}/realroot" ]; then
-			mount -n -o move /realroot ${rootmnt}/realroot
+			if [ "$realroot_ro" = "y" ]; then
+				/nativemount -o bind,ro /realroot "${rootmnt}/realroot"
+				/nativemount -o remount,bind,ro "${rootmnt}/realroot"
+			else
+				# mount -n -o move /realroot "${rootmnt}/realroot"
+				/nativemount -o bind /realroot "${rootmnt}/realroot"
+			fi
 		fi
 
 		log_end_msg
