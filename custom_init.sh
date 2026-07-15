@@ -48,9 +48,7 @@ done
 if [ "$quiet" = "y" ]; then
 	exec >/dev/null 2>&1
 elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
-	exec > >(while IFS= read -r line; do
-		printf '<4>%s\n' "$line" > /dev/kmsg
-	done) 2>&1
+	exec >/dev/kmsg 2>&1
 else
 	echo "CONSOLE: ${ACTIVE_CONSOLE}"
 	exec <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
@@ -435,6 +433,9 @@ for x in $(cat /proc/cmdline); do
 	startupsound_start=*)
 		startupsound_start="${x#startupsound_start=}"
 		;;
+	startupsound_afterModulesLoading=*)
+		startupsound_afterModulesLoading="${x#startupsound_afterModulesLoading=}"
+		;;
 	startupsound_afterMountRoot=*)
 		startupsound_afterMountRoot="${x#startupsound_afterMountRoot=}"
 		;;
@@ -501,6 +502,10 @@ maybe_break modules
 [ -n "${netconsole}" ] && /sbin/modprobe netconsole netconsole="${netconsole}"
 load_modules
 [ "$quiet" != "y" ] && log_end_msg
+
+if [ -n "$startupsound_afterModulesLoading" ]; then
+	playsound "$startupsound_afterModulesLoading"
+fi
 
 # Always load local and nfs (since these might be needed for /etc or
 # /usr, irrespective of the boot script used to mount the rootfs).
