@@ -680,7 +680,9 @@ if [ "${allow_updatescript}" = "true" ]; then
 		if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
 			USING_UPDATESCRIPT=true
 			if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
-				change_plymouth_mode_to_update
+				if [ "${allow_plymouth_change_state_to_update_later}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
+					change_plymouth_mode_to_update
+				fi
 			else
 				plymouth_init_and_check
 			fi
