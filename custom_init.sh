@@ -393,6 +393,12 @@ for x in $(cat /proc/cmdline); do
 	internal_init_noquiet)
 		INTERNAL_INIT_NOQUIET=true
 		;;
+	force_early_internal_init)
+		force_early_internal_init=true
+		;;
+	prohibit_early_internal_init)
+		prohibit_early_internal_init=true
+		;;
 
 	crashkernelauto_part=*)
 		crashkernelauto_part="${x#crashkernelauto_part=}"
@@ -720,7 +726,7 @@ else
 	plymouth_init_and_check
 fi
 
-if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
+if [ -z "$prohibit_early_internal_init" ] && ( [ -z "${ROOT}" ] || [ -n "$force_early_internal_init" ] ) && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 	wait_logodelay
 	get_uptime
 	wait_minlogotime
