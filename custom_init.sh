@@ -18,6 +18,9 @@ mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 # ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
 ACTIVE_CONSOLE="console"
 
+loop_realroot_name="realroot"
+rootsubdirectory_realroot_name="realrootroot"
+
 for x in $(cat /proc/cmdline); do
 	case $x in
 	quiet)
@@ -860,8 +863,8 @@ if [ -n "$LOOP" ]; then
 				local_mount_root
 			fi
 
-			mkdir -m 0700 /realroot
-			mount -n -o move "${rootmnt}" /realroot
+			mkdir -m 0700 "/${loop_realroot_name}"
+			mount -n -o move "${rootmnt}" "/${loop_realroot_name}"
 		fi
 
 		if [ "$LOOPREADONLY" = "true" ]; then
@@ -881,11 +884,11 @@ if [ -n "$LOOP" ]; then
 		losetup /dev/loop-root "$LOOP"
 		mount ${roflag} -t ${FSTYPE} ${LOOPFLAGS} /dev/loop-root "${rootmnt}"
 
-		if [ -d "/realroot" ] && [ -d "${rootmnt}/realroot" ]; then
-			mount -n -o move /realroot "${rootmnt}/realroot"
+		if [ -d "/${loop_realroot_name}" ] && [ -d "${rootmnt}/${loop_realroot_name}" ]; then
+			mount -n -o move "/${loop_realroot_name}" "${rootmnt}/${loop_realroot_name}"
 	
 			if [ "$realroot_ro" = "y" ]; then
-				/nativemount -o remount,ro "${rootmnt}/realroot"
+				/nativemount -o remount,ro "${rootmnt}/${loop_realroot_name}"
 			fi
 		fi
 
@@ -917,22 +920,22 @@ run_scripts /scripts/init-bottom
 if [ -n "$rootsubdirectory" ]; then
 	log_begin_msg "rootsubdirectory bind"
 
-	mkdir -m 0700 /realrootroot
-	mount -n -o move "${rootmnt}" "/realrootroot"
+	mkdir -m 0700 "/${rootsubdirectory_realroot_name}"
+	mount -n -o move "${rootmnt}" "/${rootsubdirectory_realroot_name}"
 
 	if [ "$rootsubdirectory_ro" = "y" ]; then
-		/nativemount -o bind,ro "/realrootroot/${rootsubdirectory}" /root
+		/nativemount -o bind,ro "/${rootsubdirectory_realroot_name}/${rootsubdirectory}" "${rootmnt}"
 		/nativemount -o remount,bind,ro "/root"
 	else
-		/nativemount -o bind "/realrootroot/${rootsubdirectory}" /root
+		/nativemount -o bind "/${rootsubdirectory_realroot_name}/${rootsubdirectory}" "${rootmnt}"
 	fi
 
-	if [ -d "/root/realrootroot" ]; then
+	if [ -d "${rootmnt}/${rootsubdirectory_realroot_name}" ]; then
 		if [ "$realrootroot_ro" = "y" ]; then
-			/nativemount -o bind,ro /realrootroot "/root/realrootroot"
-			/nativemount -o remount,bind,ro "/root/realrootroot"
+			/nativemount -o bind,ro "/${rootsubdirectory_realroot_name}" "${rootmnt}/${rootsubdirectory_realroot_name}"
+			/nativemount -o remount,bind,ro "${rootmnt}/${rootsubdirectory_realroot_name}"
 		else
-			/nativemount -o bind /realrootroot "/root/realrootroot"
+			/nativemount -o bind "/${rootsubdirectory_realroot_name}" "${rootmnt}/${rootsubdirectory_realroot_name}"
 		fi
 	fi
 
