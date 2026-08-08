@@ -77,18 +77,20 @@ this script was primarily intended for embedded devices, but it can also be used
 * updatescript_state_not_need_in_plymouth - deprives plymouth of information that a system update will be performed at the moment. this allows you to run plymouth earlier on some platforms with the "allow_updatescript" flag set, as this can be done BEFORE rootfs is mounted and the /updatescript directory is checked. if this flag is set, you will not be able to make different plymouth screensavers depending on whether the system is being updated.
 * while_after_updatescript_crash - causes initramfs to fall into an eternal loop in case of updatescript crash
 * boot_to_bash_shell - stops the booting and starts bash in initramfs on the console when booting
+* allow_plymouth_change_state_to_update_later - allows plymouth to initialize early, before mounting rootfs (as well as when using updatescript_state_not_need_in_plymouth or the absence of allow_updatescript), but does not deprive plymouth of information that updates will be performed, but allows it to receive this information "a little later" after the update begins. This can lead to "flashing", as the regular plymouth theme is displayed first and then the update theme. and also, depending on the theme, plymouth may not dynamically change the mode, which will lead to the fact that when using this option, plymouth will use the normal mode during the update.
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
 * also if you use a loop= that is, there will be an attempt to mount these file systems, so your loop file system should also have these directories.
 
 ## updating system
-this script has a built-in update system that
-it allows you to update the OS automatically by running your script at an early stage of OS boot
-this is especially useful for embedded devices
-to allow it to work, add the "allow_updatescript" flag to the kernel arguments
-ATTENTION! if you use the "loop=" parameter and you actually have an *.img file as rootfs, the update system WILL STILL CHECK FOR "updatescript" IN THE REAL ROOTFS!! Keep this in mind
-ATTENTION! the "updatescript.sh" and "updatethememode.sh" scripts must be located in the "/updatescript" directory and MUST be executable (chmod +x scriptname.sh)
+this script has a built-in update system that  
+it allows you to update the OS automatically by running your script at an early stage of OS boot  
+this is especially useful for embedded devices  
+to allow it to work, add the "allow_updatescript" flag to the kernel arguments  
+ATTENTION! if you use the "loop=" parameter and you actually have an *.img file as rootfs, the update system WILL STILL CHECK FOR "updatescript" IN THE REAL ROOTFS!! Keep this in mind  
+ATTENTION! the "updatescript.sh" and "updatethememode.sh" scripts must be located in the "/updatescript" directory and MUST be executable (chmod +x scriptname.sh)  
+ATTENTION! if you use "rootsubdirectory" and/or loop, then the /updatescript directory will STILL be searched in the REAL rootfs  
 ### how it works
 * for this to work, it is necessary that the "allow_updatescript" flag be in the kernel arguments, you can leave it forever if you are going to use this functionality
 * to use the update script, you need to create the "/updatescript" directory in the rootfs from the system itself, and in it the file "updatescript.sh"
@@ -166,7 +168,6 @@ plymouth change-mode --system-upgrade
 * command: sudo apt install mawk
 * command: sudo apt install kexec-tools
 * command: sudo apt install alsa-utils
-* if you use "earlysplash" (alternative initialization of plymouth), then the "/usr/share/initramfs-tools/scripts/init-premount/plymouth" and "/usr/share/initramfs-tools/scripts/init-bottom/plymouth" files must be DELETED so that they do not conflict with the new initialization of plymouth. this will result in the logo not being displayed at all without earlysplash
 * if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a "logoautohide" kernel argument
 * copy "custom_init.sh" to "/usr/share/initramfs-tools/init" and make executable
 * copy "custom_init_hook.sh" to "/etc/initramfs-tools/hooks/custom_init_hook.sh" and make executable

@@ -77,6 +77,9 @@ for x in $(cat /proc/cmdline); do
 	updatescript_state_not_need_in_plymouth)
 		updatescript_state_not_need_in_plymouth=true
 		;;
+	allow_plymouth_change_state_to_update_later)
+		allow_plymouth_change_state_to_update_later=true
+		;;
 	waitFbBeforeModules)
 		waitFbBeforeModules=y
 		;;
@@ -112,15 +115,19 @@ mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 [ -d /run ] || mkdir -m 0755 /run
 mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /run
 
+change_plymouth_mode_to_update() {
+	if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
+		/updateroot/updatescript/updatethememode.sh
+	else
+		plymouth change-mode --system-upgrade
+	fi
+}
+
 plymouth_init() {
 	mkdir -p -m 0755 /run/plymouth
 	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
-	if [ "${updatescript_state_not_need_in_plymouth}" != "true" ] && [ "${USING_UPDATESCRIPT}" = "true" ]; then
-		if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
-			/updateroot/updatescript/updatethememode.sh
-		else
-			plymouth change-mode --system-upgrade
-		fi
+	if [ "${USING_UPDATESCRIPT}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
+		change_plymouth_mode_to_update
 	fi
 	plymouth --show-splash
 
@@ -137,15 +144,15 @@ get_uptime() {
 }
 
 plymouth_init_and_check() {
-	if [ -z "${PLYMOUTH_INIT_TIME}" ]; then
-		if [ -e /dev/fb0 ]; then
-			plymouth_init
-			PLYMOUTH_FAILED=false
-			get_uptime
-			PLYMOUTH_INIT_TIME="${UPTIME}"
-		else
-			PLYMOUTH_FAILED=true
-			echo "Plymouth failed"
+	if [ "${EARLYSPLASH}" = "true" ]; then
+		if [ -z "${PLYMOUTH_INIT_TIME}" ]; then
+			if [ -e /dev/fb0 ]; then
+				plymouth_init
+				get_uptime
+				PLYMOUTH_INIT_TIME="${UPTIME}"
+			else
+				echo "Plymouth failed"
+			fi
 		fi
 	fi
 }
@@ -163,10 +170,8 @@ fi
 # initialization of plymouth has been moved to an earlier stage
 # I'm not launching plymouth that early if the update system is allowed, as I don't know which logo to show yet
 # it will start later when it will be clear whether the OS needs to be updated or not
-if [ "${EARLYSPLASH}" = "true" ]; then
-	if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ]; then
-		plymouth_init_and_check
-	fi
+if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ] || [ "${allow_plymouth_change_state_to_update_later}" = "true" ]; then
+	plymouth_init_and_check
 fi
 
 # Export the dpkg architecture
@@ -519,10 +524,8 @@ if [ "$waitFbAfterModules" = "y" ]; then
 	wait_fb
 fi
 
-if [ "${EARLYSPLASH}" = "true" ]; then
-	if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ]; then
-		plymouth_init_and_check
-	fi
+if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ] || [ "${allow_plymouth_change_state_to_update_later}" = "true" ]; then
+	plymouth_init_and_check
 fi
 
 starttime="$(_uptime)"
@@ -676,9 +679,10 @@ if [ "${allow_updatescript}" = "true" ]; then
 
 		if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
 			USING_UPDATESCRIPT=true
-			if [ "${EARLYSPLASH}" = "true" ]; then
+			if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
+				change_plymouth_mode_to_update
+			else
 				plymouth_init_and_check
-				echo "Plymouth failed"
 			fi
 
 			if ! /updateroot/updatescript/updatescript.sh; then
@@ -700,9 +704,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 			sleep 1
 			echo b > /proc/sysrq-trigger
 		else
-			if [ "${EARLYSPLASH}" = "true" ]; then
-				plymouth_init_and_check
-			fi
+			plymouth_init_and_check
 		fi
 
 		umount /updateroot/data
@@ -710,14 +712,10 @@ if [ "${allow_updatescript}" = "true" ]; then
 		umount /updateroot
 		rmdir /updateroot
 	else
-		if [ "${EARLYSPLASH}" = "true" ]; then
-			plymouth_init_and_check
-		fi
-	fi
-else
-	if [ "${PLYMOUTH_FAILED}" = "true" ]; then
 		plymouth_init_and_check
 	fi
+else
+	plymouth_init_and_check
 fi
 
 if [ -z "${ROOT}" ] && [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
