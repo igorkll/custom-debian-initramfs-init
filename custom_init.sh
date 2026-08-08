@@ -419,6 +419,13 @@ for x in $(cat /proc/cmdline); do
 		crashkernelauto_dtb="${x#crashkernelauto_dtb=}"
 		;;
 
+	loop_realroot_name=*)
+		loop_realroot_name="${x#loop_realroot_name=}"
+		;;
+	rootsubdirectory_realroot_name=*)
+		rootsubdirectory_realroot_name="${x#rootsubdirectory_realroot_name=}"
+		;;
+
 	rootsubdirectory=*)
 		rootsubdirectory="${x#rootsubdirectory=}"
 		;;

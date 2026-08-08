@@ -80,6 +80,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * allow_plymouth_change_state_to_update_later - allows plymouth to initialize early, before mounting rootfs (as well as when using updatescript_state_not_need_in_plymouth or the absence of allow_updatescript), but does not deprive plymouth of information that updates will be performed, but allows it to receive this information "a little later" after the update begins. This can lead to "flashing", as the regular plymouth theme is displayed first and then the update theme. and also, depending on the theme, plymouth may not dynamically change the mode, which will lead to the fact that when using this option, plymouth will use the normal mode during the update.
 * force_early_internal_init - runs the internal_init script at an earlier stage before mounting rootfs. by default, it runs at this stage unless the root argument is passed
 * prohibit_early_internal_init - prohibits running internal_init at an early stage, even if the root argument is not passed
+* loop_realroot_name - the name of the real root mount point that will be used in both initramfs and rootfs when using "loop". default: "realroot"
+* rootsubdirectory_realroot_name - the name of the real root mount point that will be used in both initramfs and rootfs when using "rootsubdirectory". default: "realrootroot"
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
