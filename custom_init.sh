@@ -600,6 +600,8 @@ wait_logodelay() {
 }
 
 mount_bootmnt_and_data() {
+	echo "mounting boot & data partitions"
+
 	local_device_setup "${ROOT}" "root file system (for bootmnt and data)"
 	if echo "$DEV" | grep -Eq '^/dev/(nvme|mmcblk)'; then
 		PART_NUM="${DEV##*p}"
@@ -694,6 +696,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 		mount -n -o move "${rootmnt}" /updateroot
 
 		if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
+			echo "run updatescript plymouth theme..."
+
 			USING_UPDATESCRIPT=true
 			if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
 				if [ "${allow_plymouth_change_state_to_update_later}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
@@ -703,6 +707,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 				plymouth_init_and_check
 			fi
 
+			echo "launching updatescript..."
 			if ! /updateroot/updatescript/updatescript.sh; then
 				if [ "$while_after_updatescript_crash" = "true" ]; then
 					echo "updatescript crashed, entering infinite loop"
