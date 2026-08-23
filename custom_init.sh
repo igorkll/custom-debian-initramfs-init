@@ -464,6 +464,9 @@ for x in $(cat /proc/cmdline); do
 	startupsound_afterLogoShow=*)
 		startupsound_afterLogoShow="${x#startupsound_afterLogoShow=}"
 		;;
+	startupsound_afterLogoShowOnlyAfterModules=*)
+		startupsound_afterLogoShowOnlyAfterModules="${x#startupsound_afterLogoShowOnlyAfterModules=}"
+		;;
 	startupsound_beforeSwitchRoot=*)
 		startupsound_beforeSwitchRoot="${x#startupsound_beforeSwitchRoot=}"
 		;;
@@ -542,6 +545,10 @@ fi
 
 if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ] || [ "${allow_plymouth_change_state_to_update_later}" = "true" ]; then
 	plymouth_init_and_check
+	
+	if [ -n "$startupsound_afterLogoShowOnlyAfterModules" ] && [ -n "$PLYMOUTH_INIT_TIME" ]; then
+		playsound "$startupsound_afterLogoShowOnlyAfterModules"
+	fi
 fi
 
 starttime="$(_uptime)"
