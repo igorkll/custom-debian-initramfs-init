@@ -138,6 +138,11 @@ plymouth_init() {
 		playsound "$startupsound_afterLogoShow"
 	fi
 
+	if [ -n "$startupsound_afterLogoShowOnlyAfterModules" ] && [ -n "$MODULES_LOADED" ] && [ -z "$AFTER_MODULES_LOGO_SOUND_PLAYED" ]; then
+		playsound "$startupsound_afterLogoShowOnlyAfterModules"
+		AFTER_MODULES_LOGO_SOUND_PLAYED=true
+	fi
+
 	echo "Plymouth succesful"
 }
 
@@ -528,8 +533,15 @@ maybe_break modules
 load_modules
 [ "$quiet" != "y" ] && log_end_msg
 
+MODULES_LOADED=true
+
 if [ -n "$startupsound_afterModulesLoading" ]; then
 	playsound "$startupsound_afterModulesLoading"
+fi
+
+if [ -n "$startupsound_afterLogoShowOnlyAfterModules" ] && [ -n "$PLYMOUTH_INIT_TIME" ] && [ -z "$AFTER_MODULES_LOGO_SOUND_PLAYED" ]; then
+	playsound "$startupsound_afterLogoShowOnlyAfterModules"
+	AFTER_MODULES_LOGO_SOUND_PLAYED=true
 fi
 
 # Always load local and nfs (since these might be needed for /etc or
@@ -545,10 +557,6 @@ fi
 
 if [ "${allow_updatescript}" != "true" ] || [ "${updatescript_state_not_need_in_plymouth}" = "true" ] || [ "${allow_plymouth_change_state_to_update_later}" = "true" ]; then
 	plymouth_init_and_check
-	
-	if [ -n "$startupsound_afterLogoShowOnlyAfterModules" ] && [ -n "$PLYMOUTH_INIT_TIME" ]; then
-		playsound "$startupsound_afterLogoShowOnlyAfterModules"
-	fi
 fi
 
 starttime="$(_uptime)"
