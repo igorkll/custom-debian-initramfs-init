@@ -32,12 +32,14 @@ esac
 [ "$ZRAM_PERCENT" -gt 0 ]   || exit 0
 [ "$ZRAM_PERCENT" -le 100 ] || ZRAM_PERCENT=100
 
-# --------------
+# -------------- load zram module
 
-modprobe zram num_devices=1 || exit 0
+modprobe zram
 [ -e /dev/zram0 ] || exit 0
 
-mem_total_kb=$(/nativeawk '/^MemTotal:/ {print $2}' /proc/meminfo)
+# -------------- enable zram
+
+mem_total_kb=$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)
 zram_size_mb=$(( mem_total_kb * ZRAM_PERCENT / 100 / 1024 ))
 
 [ "$zram_size_mb" -gt 0 ] || exit 0

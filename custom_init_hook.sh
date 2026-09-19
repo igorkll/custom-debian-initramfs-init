@@ -16,7 +16,6 @@ esac
 
 copy_exec /usr/bin/mount /nativemount
 copy_exec /usr/bin/ls /nativels
-copy_exec /usr/bin/awk /nativeawk
 
 copy_exec /usr/bin/cp /usr/bin
 copy_exec /usr/bin/rm /usr/bin
