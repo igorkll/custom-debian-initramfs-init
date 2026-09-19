@@ -83,6 +83,8 @@ this script was primarily intended for embedded devices, but it can also be used
 * prohibit_early_internal_init - prohibits running internal_init at an early stage, even if the root argument is not passed
 * loop_realroot_name - the name of the real root mount point that will be used in both initramfs and rootfs when using "loop". default: "realroot"
 * rootsubdirectory_realroot_name - the name of the real root mount point that will be used in both initramfs and rootfs when using "rootsubdirectory". default: "realrootroot"
+* plymouth_show_boot_status
+* plymouth_show_update_status
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems

@@ -119,6 +119,10 @@ mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /run
 
 change_plymouth_mode_to_update() {
+	if [ -n "$plymouth_show_update_status" ]; then
+		show_plymouth_status "Updating"
+	fi
+
 	if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
 		/updateroot/updatescript/updatethememode.sh
 	else
@@ -131,6 +135,10 @@ plymouth_init() {
 	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
 	if [ "${USING_UPDATESCRIPT}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
 		change_plymouth_mode_to_update
+	else
+		if [ -n "$plymouth_show_boot_status" ]; then
+			show_plymouth_status "Booting"
+		fi
 	fi
 	plymouth --show-splash
 
@@ -479,6 +487,14 @@ for x in $(cat /proc/cmdline); do
 	boot_to_bash_shell)
 		boot_to_bash_shell=y
 		;;
+
+	plymouth_show_update_status)
+		plymouth_show_update_status=y
+		;;
+
+	plymouth_show_boot_status)
+		plymouth_show_boot_status=y
+		;;
 	esac
 done
 
@@ -498,6 +514,12 @@ playsound() {
 			aplay -D "plughw:${card},${dev}" "$sound_file" &
 		done
 	done
+}
+
+show_plymouth_status() {
+	if command -v plymouth > /dev/null 2>&1; then
+		plymouth display-message --text="$1"
+	fi
 }
 
 if [ -n "$startupsound_start" ]; then
@@ -726,6 +748,9 @@ if [ "${allow_updatescript}" = "true" ]; then
 			if ! /updateroot/updatescript/updatescript.sh; then
 				if [ "$while_after_updatescript_crash" = "true" ]; then
 					echo "updatescript crashed, entering infinite loop"
+					if [ -n "$plymouth_show_update_status" ]; then
+						show_plymouth_status "Update failed"
+					fi
 					while true; do
 						sleep 1
 					done
