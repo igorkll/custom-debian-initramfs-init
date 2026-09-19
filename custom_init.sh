@@ -17,6 +17,9 @@ mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 
 # ACTIVE_CONSOLE="console"
 ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active | awk '{print $NF}')
+if [ -z "$ACTIVE_CONSOLE" ]; then
+	ACTIVE_CONSOLE="ttynull"
+fi
 
 loop_realroot_name="realroot"
 rootsubdirectory_realroot_name="realrootroot"
