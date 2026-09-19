@@ -119,10 +119,6 @@ mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /run
 
 change_plymouth_mode_to_update() {
-	if [ -n "$plymouth_show_update_status" ]; then
-		show_plymouth_status "Updating"
-	fi
-
 	if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
 		/updateroot/updatescript/updatethememode.sh
 	else
@@ -135,12 +131,18 @@ plymouth_init() {
 	plymouthd --mode=boot --attach-to-session --pid-file=/run/plymouth/pid
 	if [ "${USING_UPDATESCRIPT}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
 		change_plymouth_mode_to_update
+	fi
+	plymouth --show-splash
+
+	if [ "${USING_UPDATESCRIPT}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
+		if [ -n "$plymouth_show_update_status" ]; then
+			show_plymouth_status "Updating"
+		fi
 	else
 		if [ -n "$plymouth_show_boot_status" ]; then
 			show_plymouth_status "Booting"
 		fi
 	fi
-	plymouth --show-splash
 
 	if [ -n "$startupsound_afterLogoShow" ]; then
 		playsound "$startupsound_afterLogoShow"
@@ -738,6 +740,10 @@ if [ "${allow_updatescript}" = "true" ]; then
 			USING_UPDATESCRIPT=true
 			if [ -n "${PLYMOUTH_INIT_TIME}" ]; then
 				if [ "${allow_plymouth_change_state_to_update_later}" = "true" ] && [ "${updatescript_state_not_need_in_plymouth}" != "true" ]; then
+					if [ -n "$plymouth_show_update_status" ]; then
+						show_plymouth_status "Updating"
+					fi
+					
 					change_plymouth_mode_to_update
 				fi
 			else
