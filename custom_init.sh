@@ -15,8 +15,8 @@ mount -t devtmpfs -o nosuid,mode=0755 udev /dev
 [ -d /sys ] || mkdir /sys
 mount -t sysfs -o nodev,noexec,nosuid sysfs /sys
 
-# ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active)
-ACTIVE_CONSOLE="console"
+# ACTIVE_CONSOLE="console"
+ACTIVE_CONSOLE=$(cat /sys/class/tty/console/active | awk '{print $NF}')
 
 loop_realroot_name="realroot"
 rootsubdirectory_realroot_name="realrootroot"
@@ -33,11 +33,11 @@ for x in $(cat /proc/cmdline); do
 		echo 0 > /proc/sys/kernel/printk
 		;;
 	clear)
-		printf "\033[2J\033[H"
+		printf "\033[2J\033[H" > "/dev/${ACTIVE_CONSOLE}"
 		printf "\033[2J\033[H" > /dev/tty1
 		;;
 	noCursorBlink)
-		printf "\033[?25l"
+		printf "\033[?25l" > "/dev/${ACTIVE_CONSOLE}"
 		printf "\033[?25l" > /dev/tty1
 		;;
 	noctrlaltdel)
