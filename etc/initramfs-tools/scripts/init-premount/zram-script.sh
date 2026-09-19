@@ -35,6 +35,13 @@ esac
 # -------------- load zram module
 
 modprobe zram
+
+i=0
+while [ ! -e /dev/zram0 ] && [ "$i" -lt 5 ]; do
+    sleep 1
+    i=$((i+1))
+done
+
 [ -e /dev/zram0 ] || exit 0
 
 # -------------- enable zram
@@ -56,5 +63,5 @@ fi
 
 echo "${zram_size_mb}M" > /sys/block/zram0/disksize || exit 0
 
-mkswap /dev/zram0 >/dev/null 2>&1
-swapon /dev/zram0 || exit 0
+/nativemkswap /dev/zram0 >/dev/null 2>&1
+/nativeswapon -p 100 /dev/zram0 || exit 0

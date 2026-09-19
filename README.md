@@ -85,6 +85,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * rootsubdirectory_realroot_name - the name of the real root mount point that will be used in both initramfs and rootfs when using "rootsubdirectory". default: "realrootroot"
 * plymouth_show_boot_status
 * plymouth_show_update_status
+* custom_zram_percent - pass the number percentage that will be allocated for zram. example (custom_zram_percent=25)
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
@@ -178,4 +179,5 @@ plymouth change-mode --system-upgrade
 * if your initialization system does not trigger plymouth quit, then you can either add this manually (for example, before starting a graphical session) or add a "logoautohide" kernel argument
 * copy "custom_init.sh" to "/usr/share/initramfs-tools/init" and make executable
 * copy "custom_init_hook.sh" to "/etc/initramfs-tools/hooks/custom_init_hook.sh" and make executable
+* copy all from "etc" to "/etc" (don't forget about the access rights)
 * command: sudo update-initramfs -u
