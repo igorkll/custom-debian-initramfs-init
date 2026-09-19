@@ -791,6 +791,8 @@ if [ "${allow_updatescript}" = "true" ]; then
 		if [ -n "$updatescript_in_private_data" ]; then
 			if [ -d "/data/.private/updatescript" ] && [ -x "/data/.private/updatescript/updatescript.sh" ]; then
 				run_updatescript "/data/.private/updatescript"
+			else
+				plymouth_init_and_check
 			fi
 		else
 			if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
