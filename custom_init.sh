@@ -824,7 +824,7 @@ if [ -z "$prohibit_early_internal_init" ] && ( [ -z "${ROOT}" ] || [ -n "$force_
 	fi
 
 	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
-		"${INTERNAL_INIT}" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>$1
+		"${INTERNAL_INIT}" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
 	else
 		"${INTERNAL_INIT}"
 	fi
