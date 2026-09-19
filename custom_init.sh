@@ -77,6 +77,9 @@ for x in $(cat /proc/cmdline); do
 	allow_updatescript)
 		allow_updatescript=true
 		;;
+	updatescript_in_private_data)
+		updatescript_in_private_data=true
+		;;
 	updatescript_state_not_need_in_plymouth)
 		updatescript_state_not_need_in_plymouth=true
 		;;
@@ -119,10 +122,18 @@ mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts || true
 mount -t tmpfs -o "nodev,noexec,nosuid,size=${RUNSIZE:-10%},mode=0755" tmpfs /run
 
 change_plymouth_mode_to_update() {
-	if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
-		/updateroot/updatescript/updatethememode.sh
+	if [ -n "$updatescript_in_private_data" ]; then
+		if [ -x "/data/.private/updatescript/updatethememode.sh" ]; then
+			/data/.private/updatescript/updatethememode.sh
+		else
+			plymouth change-mode --system-upgrade
+		fi
 	else
-		plymouth change-mode --system-upgrade
+		if [ -x "/updateroot/updatescript/updatethememode.sh" ]; then
+			/updateroot/updatescript/updatethememode.sh
+		else
+			plymouth change-mode --system-upgrade
+		fi
 	fi
 }
 
@@ -734,7 +745,10 @@ if [ "${allow_updatescript}" = "true" ]; then
 		mkdir -m 0700 /updateroot
 		mount -n -o move "${rootmnt}" /updateroot
 
-		if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
+		mkdir -m 0700 /data
+		mount -n -o move /updateroot/data /data
+
+		run_updatescript() {
 			echo "run updatescript plymouth theme..."
 
 			USING_UPDATESCRIPT=true
@@ -751,7 +765,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 			fi
 
 			echo "launching updatescript..."
-			if ! /updateroot/updatescript/updatescript.sh; then
+			if ! "$1/updatescript.sh"; then
 				if [ "$while_after_updatescript_crash" = "true" ]; then
 					echo "updatescript crashed, entering infinite loop"
 					if [ -n "$plymouth_show_update_status" ]; then
@@ -763,7 +777,7 @@ if [ "${allow_updatescript}" = "true" ]; then
 				fi
 			fi
 
-			rm -rf /updateroot/updatescript
+			rm -rf "$1"
 
 			wait_logodelay
 			get_uptime
@@ -772,14 +786,25 @@ if [ "${allow_updatescript}" = "true" ]; then
 			sync
 			sleep 1
 			echo b > /proc/sysrq-trigger
+		}
+
+		if [ -n "$updatescript_in_private_data" ]; then
+			if [ -d "/data/.private/updatescript" ] && [ -x "/data/.private/updatescript/updatescript.sh" ]; then
+				run_updatescript "/data/.private/updatescript"
+			fi
 		else
-			plymouth_init_and_check
+			if [ -d "/updateroot/updatescript" ] && [ -x "/updateroot/updatescript/updatescript.sh" ]; then
+				run_updatescript "/updateroot/updatescript"
+			else
+				plymouth_init_and_check
+			fi
 		fi
 
-		umount /updateroot/data
 		umount /updateroot/bootmnt
 		umount /updateroot
+		umount /data
 		rmdir /updateroot
+		rmdir /data
 	else
 		plymouth_init_and_check
 	fi
