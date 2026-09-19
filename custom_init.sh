@@ -54,8 +54,8 @@ if [ "$quiet" = "y" ]; then
 elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
 	exec >/dev/kmsg 2>&1
 else
-	echo "CONSOLE: ${ACTIVE_CONSOLE}"
 	exec <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
+	echo "CONSOLE: ${ACTIVE_CONSOLE}"
 fi
 
 for x in $(cat /proc/cmdline); do
