@@ -508,6 +508,10 @@ for x in $(cat /proc/cmdline); do
 	plymouth_show_boot_status)
 		plymouth_show_boot_status=y
 		;;
+
+	bootmnt_readonly)
+		bootmnt_readonly=y
+		;;
 	esac
 done
 
@@ -699,7 +703,11 @@ mount_bootmnt_and_data() {
 	}
 
 	if [ "$FIRST_DEV" != "$DEV" ] && [ -d "${rootmnt}/bootmnt" ]; then
-		/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
+		if [ -n "$bootmnt_readonly" ]; then
+			/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o ro,uid=0,gid=0,umask=022
+		else
+			/nativemount -t auto "$FIRST_DEV" "${rootmnt}/bootmnt" -o rw,uid=0,gid=0,umask=022
+		fi
 	fi
 
 	if [ "$LAST_DEV" != "$DEV" ] && [ -d "${rootmnt}/data" ]; then

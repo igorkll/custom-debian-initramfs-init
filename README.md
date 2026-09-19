@@ -87,6 +87,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * plymouth_show_update_status
 * custom_zram_percent - pass the number percentage that will be allocated for zram. example (custom_zram_percent=25)
 * updatescript_in_private_data - forces the updatescript directory to be searched not in /updatescript, but in /data/.private/updatescript
+* bootmnt_readonly - makes the file system in /bootmnt mounted as read-only
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
