@@ -98,6 +98,14 @@ for x in $(cat /proc/cmdline); do
 	while_after_updatescript_crash)
 		while_after_updatescript_crash=true
 		;;
+
+	plymouth_show_update_status)
+		plymouth_show_update_status=y
+		;;
+
+	plymouth_show_boot_status)
+		plymouth_show_boot_status=y
+		;;
 	esac
 done
 
@@ -504,14 +512,6 @@ for x in $(cat /proc/cmdline); do
 		boot_to_bash_shell=y
 		;;
 
-	plymouth_show_update_status)
-		plymouth_show_update_status=y
-		;;
-
-	plymouth_show_boot_status)
-		plymouth_show_boot_status=y
-		;;
-
 	bootmnt_readonly)
 		bootmnt_readonly=y
 		;;
@@ -852,14 +852,6 @@ fi
 maybe_break premount
 [ "$quiet" != "y" ] && log_begin_msg "Running /scripts/init-premount"
 run_scripts /scripts/init-premount
-
-if [ "$quiet" = "y" ]; then
-	exec >/dev/null 2>&1
-elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
-	exec >/dev/kmsg 2>&1
-else
-	exec <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
-fi
 
 [ "$quiet" != "y" ] && log_end_msg
 
