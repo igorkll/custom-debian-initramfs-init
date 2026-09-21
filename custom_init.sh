@@ -29,6 +29,9 @@ for x in $(cat /proc/cmdline); do
 	quiet)
 		quiet=y
 		;;
+	no_redirect_to_null_if_quiet)
+		no_redirect_to_null_if_quiet=y
+		;;
 	if_not_quiet_redirect_to_kmsg)
 		if_not_quiet_redirect_to_kmsg=y
 		;;
@@ -52,7 +55,7 @@ for x in $(cat /proc/cmdline); do
 	esac
 done
 
-if [ "$quiet" = "y" ]; then
+if [ "$quiet" = "y" ] && [ "${no_redirect_to_null_if_quiet}" != "y" ]; then
 	exec >/dev/null 2>&1
 elif [ "$if_not_quiet_redirect_to_kmsg" = "y" ]; then
 	exec >/dev/kmsg 2>&1
@@ -834,7 +837,7 @@ if [ -z "$prohibit_early_internal_init" ] && ( [ -z "${ROOT}" ] || [ -n "$force_
 		plymouth quit
 	fi
 
-	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
+	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ]; then
 		"${INTERNAL_INIT}" <"/dev/${ACTIVE_CONSOLE}" >"/dev/${ACTIVE_CONSOLE}" 2>&1
 	else
 		"${INTERNAL_INIT}"
@@ -1048,7 +1051,7 @@ if [ -n "${INTERNAL_INIT}" ] && [ -x "${INTERNAL_INIT}" ]; then
 		plymouth quit
 	fi
 
-	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ] && [ "${quiet}" = "y" ]; then
+	if [ "${INTERNAL_INIT_NOQUIET}" = "true" ]; then
 		"${INTERNAL_INIT}" <"${rootmnt}/dev/${ACTIVE_CONSOLE}" >"${rootmnt}/dev/${ACTIVE_CONSOLE}" 2>&1
 	else
 		"${INTERNAL_INIT}"

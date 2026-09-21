@@ -88,6 +88,7 @@ this script was primarily intended for embedded devices, but it can also be used
 * custom_zram_percent - pass the number percentage that will be allocated for zram. example (custom_zram_percent=25)
 * updatescript_in_private_data - forces the updatescript directory to be searched not in /updatescript, but in /data/.private/updatescript
 * bootmnt_readonly - makes the file system in /bootmnt mounted as read-only
+* no_redirect_to_null_if_quiet - it was created so as not to disable the internal output of the initramfs script when the quiet parameter is passed. this is necessary, for example, in cases where the quiet parameter is used only for the core, but in fact you do not want full quiet
 
 ## mount_bootmnt & mount_data
 * note that during the execution of updatescript, a real rootfs is mounted in /updateroot and the /bootmnt and /data directories must be there in order to have access to these filesystems
